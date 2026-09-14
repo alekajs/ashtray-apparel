@@ -67,6 +67,14 @@ const LEGACY_PAGES: Record<string, string> = {
 };
 
 const MAX_BODY_BYTES = 20_000;
+/** The contact form allows about 5,500 characters; URL-encoded non-Latin text can need ~9 bytes each. */
+const MAX_CONTACT_BYTES = 64_000;
+
+/** Cuts to at most n UTF-16 units without leaving half of an emoji behind. */
+function cap(text: string, n: number): string {
+  const cut = text.slice(0, n);
+  return /[\uD800-\uDBFF]$/.test(cut) ? cut.slice(0, -1) : cut;
+}
 
 /**
  * Old Big Cartel and archive-copy addresses map to the new canonical paths. Repeated slashes and backslashes
@@ -97,8 +105,9 @@ function mapKnown(path: string): string | undefined {
 
 /** Reads a request body as text, giving up (null) once it passes `limit` bytes. */
 async function readLimited(request: Request, limit: number): Promise<string | null> {
-  const declared = Number(request.headers.get("Content-Length"));
-  if (Number.isFinite(declared) && declared > limit) return null;
+  // HTTP/2 and HTTP/3 clients may omit Content-Length, so the byte count below is the real limit.
+  const header = request.headers.get("Content-Length");
+  if (header !== null && (!/^\d+$/.test(header.trim()) || Number(header) > limit)) return null;
   if (!request.body) return "";
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -151,13 +160,18 @@ export async function handle(request: Request, env: Env): Promise<Response> {
   if (path === "/contact" && method === "POST") {
     // The form isn't connected yet (next build step): nothing is stored or sent. The page comes back with
     // the notice and the visitor's own text, so they can copy it into a DM.
-    const text = (await readLimited(request, MAX_BODY_BYTES)) ?? "";
+    const fetchSite = request.headers.get("Sec-Fetch-Site");
+    const requestOrigin = request.headers.get("Origin");
+    const sameSite = (fetchSite === null || fetchSite === "same-origin") && (requestOrigin === null || requestOrigin === url.origin);
+    if (!sameSite) return htmlResponse(contactPage(origin), 403, "no-store");
+    const text = await readLimited(request, MAX_CONTACT_BYTES);
+    if (text === null) return htmlResponse(contactPage(origin, undefined, "YOUR MESSAGE IS TOO LONG. PLEASE SHORTEN IT."), 413, "no-store");
     const form = new URLSearchParams(text);
     const values = {
-      name: (form.get("name") ?? "").slice(0, 120),
-      email: (form.get("email") ?? "").slice(0, 200),
-      subject: (form.get("subject") ?? "").slice(0, 200),
-      message: (form.get("message") ?? "").slice(0, 5000),
+      name: cap(form.get("name") ?? "", 120),
+      email: cap(form.get("email") ?? "", 200),
+      subject: cap(form.get("subject") ?? "", 200),
+      message: cap(form.get("message") ?? "", 5000),
     };
     return htmlResponse(contactPage(origin, values), 200, "no-store");
   }

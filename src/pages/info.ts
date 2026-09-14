@@ -54,7 +54,7 @@ export interface ContactValues {
   message: string;
 }
 
-export function contactPage(origin: string, submitted?: ContactValues): string {
+export function contactPage(origin: string, submitted?: ContactValues, problem?: string): string {
   const v = submitted ?? { name: "", email: "", subject: "", message: "" };
   const content = html`<div class="prose-page">
     <div class="prose-page__head">
@@ -62,6 +62,7 @@ export function contactPage(origin: string, submitted?: ContactValues): string {
       <p class="label">OR DM <a class="link" href="${SITE.instagram.url}" rel="noopener">${SITE.instagram.handle.toUpperCase()}&nbsp;↗</a></p>
     </div>
     <form class="contact" method="post" action="/contact">
+      ${problem ? html`<p class="notice" role="alert">${problem}</p>` : ""}
       <p class="notice" ${submitted ? html`role="alert"` : html`role="note"`}>${SITE.contactClosedMessage}</p>
       <div class="field"><label class="label" for="contact-name">NAME</label><input class="input" id="contact-name" name="name" autocomplete="name" required maxlength="120" value="${v.name}"></div>
       <div class="field"><label class="label" for="contact-email">EMAIL</label><input class="input" id="contact-email" name="email" type="email" autocomplete="email" required maxlength="200" value="${v.email}"></div>

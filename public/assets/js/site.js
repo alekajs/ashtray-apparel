@@ -81,11 +81,10 @@
       leaving = true;
       menu.close();
     };
-    menu.addEventListener("click", (event) => {
-      const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
-      if (link && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) closeForNavigation();
-    });
     window.addEventListener("pagehide", closeForNavigation);
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) closeForNavigation();
+    });
   }
 
   // ---------------------------------------------------------------- add to cart

@@ -675,6 +675,12 @@ main {
   .panel {
     padding: 0;
   }
+
+  .gallery {
+    position: sticky;
+    top: 16px;
+    align-self: start;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -741,6 +747,12 @@ main {
   flex-shrink: 0;
   color: var(--faint);
   white-space: nowrap;
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .gallery__track .fig:not(:first-child) .fig__count {
+    display: none;
+  }
 }
 
 .gallery__index {
@@ -815,7 +827,7 @@ main {
   }
 }
 
-@media (min-width: 1024px) and (min-height: 1150px) {
+@media (min-width: 1024px) and (min-height: 1450px) {
   .panel {
     position: sticky;
     top: 24px;
@@ -1331,8 +1343,10 @@ main {
   }
 
   .story__text {
-    align-self: end;
-    padding-bottom: 36px;
+    align-self: start;
+    position: sticky;
+    top: 24px;
+    margin-top: calc(84px * 0.95 * 2 + 36px + 14px);
   }
 }
 
@@ -1385,6 +1399,11 @@ main {
 .menu--page {
   height: auto;
   min-height: 100vh;
+}
+
+.menu--page .menu__inner {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .menu__inner {
@@ -1530,20 +1549,33 @@ main {
   white-space: nowrap;
 }
 
-/* F17: comfortable tap targets on touch screens */
+/* Comfortable tap targets on touch screens. Standalone links grow; links inside text get an invisible
+   44px hit area instead, so words, spaces and underlines stay where they are. */
 @media (pointer: coarse) {
   .foot__links a,
-  .link,
-  .row__name,
-  .buy__status a,
-  .summary__dm,
   .crumbs a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
   }
 
-  .link {
-    padding-bottom: 0;
+  .link,
+  .row__name,
+  .buy__status a,
+  .summary__dm {
+    position: relative;
+  }
+
+  .link::after,
+  .row__name::after,
+  .buy__status a::after,
+  .summary__dm::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 44px;
+    transform: translateY(-50%);
   }
 }

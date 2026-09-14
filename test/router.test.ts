@@ -129,6 +129,24 @@ describe("pages", () => {
     expect((await get("/sample/ghost")).status).toBe(404);
   });
 
+  it("refuses cross-site contact posts and oversized bodies", async () => {
+    const body = new URLSearchParams({ name: "x", message: "fake" }).toString();
+    const cross = await get("/contact", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", Origin: "https://evil.example" }, body });
+    expect(cross.status).toBe(403);
+    expect(await cross.text()).not.toContain("fake");
+    const huge = await get("/contact", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "message=" + "a".repeat(70_000) });
+    expect(huge.status).toBe(413);
+    const unicode = await get("/contact", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ message: "ž".repeat(4000) }).toString() });
+    expect(unicode.status).toBe(200);
+    expect(await unicode.text()).toContain("ž".repeat(4000));
+  });
+
+  it("never cuts an emoji in half", async () => {
+    const res = await get("/contact", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ name: "a" + "🚀".repeat(100) }).toString() });
+    const text = await res.text();
+    expect(text).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
+  });
+
   it("answers the contact form without storing anything and keeps the visitor's text, escaped", async () => {
     const res = await get("/contact", {
       method: "POST",

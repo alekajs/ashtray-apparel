@@ -79,6 +79,21 @@
   // What to focus after the list is rebuilt (the element that had focus is replaced).
   let pendingFocus = null;
   let pendingAnnouncement = "";
+  let announceQuote = false;
+  let codeSubmitted = false;
+
+  const titleCase = (text) => text.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+
+  function speak(text) {
+    if (announce.textContent === text) {
+      announce.textContent = "";
+      requestAnimationFrame(() => {
+        announce.textContent = text;
+      });
+    } else {
+      announce.textContent = text;
+    }
+  }
 
   function updateItem(line, qty, focusHint) {
     pendingFocus = focusHint;
@@ -206,10 +221,16 @@
     setText(checkoutMessage, "");
 
     restoreFocus();
-    if (pendingAnnouncement) {
-      const where = quote.shipping ? `Shipping to ${quote.countryName.toLowerCase()} ${eur(quote.shipping.cents)}.` : "";
-      setText(announce, `${pendingAnnouncement} ${where} Total ${eur(quote.totalCents)}.`.replace(/\s+/g, " ").trim());
+    if (pendingAnnouncement || announceQuote || codeSubmitted) {
+      const codeText = codeSubmitted ? (quote.discount ? `Code ${quote.discount.code} applied.` : (quote.codeMessage || "")) : "";
+      const where = quote.units && quote.shipping
+        ? `Shipping to ${titleCase(quote.countryName)} ${eur(quote.shipping.cents)}, ${quote.shipping.delivery.toLowerCase()}.`
+        : quote.units ? "We don't ship to that country yet." : "";
+      const totalText = quote.units ? `Total ${eur(quote.totalCents)}.` : "Your cart is empty.";
+      speak([pendingAnnouncement, codeText, where, totalText].filter(Boolean).join(" "));
       pendingAnnouncement = "";
+      announceQuote = false;
+      codeSubmitted = false;
     }
   }
 
@@ -236,7 +257,7 @@
 
   country.addEventListener("change", () => {
     setStored(localStorage, COUNTRY_KEY, country.value);
-    pendingAnnouncement = `Shipping to ${country.options[country.selectedIndex].text.toLowerCase()}.`;
+    announceQuote = true;
     refresh();
   });
 
@@ -244,6 +265,7 @@
     event.preventDefault();
     codeInput.value = codeInput.value.trim().toUpperCase();
     setStored(sessionStorage, CODE_KEY, codeInput.value);
+    codeSubmitted = true;
     refresh();
   });
 
