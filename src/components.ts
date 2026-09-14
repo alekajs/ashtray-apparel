@@ -17,12 +17,13 @@ export function sampleTile(sample: Sample, index: number): Html {
   const eager = index < 2;
   const loading = eager ? html`fetchpriority="${index === 0 ? "high" : "auto"}"` : html`loading="lazy"`;
   const sizes = "(min-width: 1200px) 18vw, (min-width: 768px) 30vw, 46vw";
+  const num = html`<span class="tile__num" aria-hidden="true">[${sample.number}]</span>`;
   const picture = sample.cutout
     ? html`<span class="tile__img tile__img--cutout"><img src="${cutoutUrl(sample, 480)}"
         srcset="${CUTOUT_WIDTHS.map((width) => `${cutoutUrl(sample, width)} ${width}w`).join(", ")}" sizes="${sizes}"
-        width="${sample.cutout.width}" height="${sample.cutout.height}" alt="" ${loading} decoding="async"></span>`
+        width="${sample.cutout.width}" height="${sample.cutout.height}" alt="" ${loading} decoding="async">${num}</span>`
     : html`<span class="tile__img"><img src="${imageUrl(sample, 1, 480)}" srcset="${imageSrcset(sample, 1)}" sizes="${sizes}"
-        width="${first?.width ?? 2000}" height="${first?.height ?? 2444}" alt="" ${loading} decoding="async"></span>`;
+        width="${first?.width ?? 2000}" height="${first?.height ?? 2444}" alt="" ${loading} decoding="async">${num}</span>`;
   return html`<li>
     <a class="tile${isSoldOut(sample) ? " tile--sold" : ""}" href="/sample/${sample.slug}">
       ${picture}

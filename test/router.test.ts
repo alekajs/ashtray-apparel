@@ -196,6 +196,7 @@ describe("pages", () => {
     const body = await (await get("/")).text();
     expect(body).not.toContain("tile__colour");
     expect(body).not.toMatch(/tile__name">[^<]*<span class="num">/);
+    for (const s of SAMPLES) expect(body).toContain(`<span class="tile__num" aria-hidden="true">[${s.number}]</span>`);
     expect(body).toContain(">€15</span>");
     expect(body).toContain(">€55</span>");
     expect(body).not.toContain("€15.00");

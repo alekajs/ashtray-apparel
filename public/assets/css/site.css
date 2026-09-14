@@ -584,10 +584,28 @@ main {
 }
 
 .tile__img {
+  position: relative;
   display: block;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--panel);
+}
+
+/* Sample number in the photo's top-right corner, lined up with the price below */
+.tile__num {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--accent);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+
+@media (min-width: 768px) {
+  .tile__num {
+    font-size: 11px;
+  }
 }
 
 .tile__img img {
