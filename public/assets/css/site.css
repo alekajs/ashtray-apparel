@@ -162,13 +162,15 @@ main {
   display: none;
 }
 
+/* Desktop: the side ruler is pinned to the window and stays put while the page scrolls, as on ashtraystudio.eu */
 @media (min-width: 1024px) {
   .ruler--side {
     display: block;
-    position: absolute;
-    top: var(--ruler);
+    position: fixed;
+    top: 0;
     bottom: 0;
     left: 0;
+    z-index: 26;
     width: var(--ruler);
     pointer-events: none;
     background-image:

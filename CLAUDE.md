@@ -11,7 +11,7 @@
 - **Next:** Stripe Checkout (test mode first), automatic stock, the contact form email, then the admin panel. Until then `SITE.checkoutOpen` is false, and the contact POST only shows a notice.
 
 ## Owner decisions to keep
-- **Look:** yeezy.com's quiet-grid mood (never copy its layout or details) plus ashtraystudio.eu's language turned black: Courier Prime, tracked uppercase labels, `[ BRACKETED ]` actions, dotted-leader spec rows, rulers (top everywhere; side ruler on desktop only), crop marks with "FIG. 01" captions.
+- **Look:** yeezy.com's quiet-grid mood (never copy its layout or details) plus ashtraystudio.eu's language turned black: Courier Prime, tracked uppercase labels, `[ BRACKETED ]` actions, dotted-leader spec rows, rulers (top everywhere; side ruler on desktop only, pinned to the window like ashtraystudio.eu), crop marks with "FIG. 01" captions.
 - **Colours:** `#070707`, `#FAFAF7`, `#A45DBB` (hover `#C191CF`).
 - **Minimal chrome on every page:** top bar `[ MENU ]` · logo · `[ CART n ]`, one footer line (promo + Instagram, TikTok, Ashtray Studio). The menu opens full screen.
 - **Grid (owner, 2026-09-14):** the name on the left and the price on the right, with no colour. Prices are white and turn purple with the name on hover. The sample number `[NN]` sits in white in the photo's bottom-left corner (cut-outs leave room above it) and turns purple on hover with the name and price. Photos are the owner's transparent cut-outs straight on the black page, with no tile, no hover fade and no fade for sold out. Prices are whole euros without decimals (€15), and amounts with cents keep them (€2.50). Samples are numbered in the order they were made.
