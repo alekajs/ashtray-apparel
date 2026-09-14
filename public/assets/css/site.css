@@ -594,7 +594,6 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 0.25s ease;
 }
 
 /* Cut-out garments float on the page, fitted inside the same 4:5 frame and standing on a shared line
@@ -609,12 +608,7 @@ main {
   object-position: 50% 100%;
 }
 
-@media (hover: hover) {
-  .tile:hover .tile__img img {
-    opacity: 0.85;
-  }
-}
-
+/* Photos don't change on hover; sold-out samples stay faded */
 .tile--sold .tile__img img {
   opacity: 0.5;
 }
@@ -628,8 +622,19 @@ main {
   letter-spacing: 0.12em;
 }
 
+/* Grid prices are white (sale prices included); name and price turn purple together on hover or keyboard focus */
+.tile .price--sale {
+  color: var(--ink);
+}
+
+.tile:focus-visible .tile__name,
+.tile:focus-visible .price {
+  color: var(--accent-hi);
+}
+
 @media (hover: hover) {
-  .tile:hover .tile__name {
+  .tile:hover .tile__name,
+  .tile:hover .price {
     color: var(--accent-hi);
   }
 }
