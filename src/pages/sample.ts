@@ -1,5 +1,5 @@
 import { cursor, priceTag, studioBox } from "../components";
-import { DELIVERY_NOTES, FINAL_NOTE, formatCatalogued, imageSrcset, imageUrl, isSoldOut, shareImageUrl, type Sample } from "../data/catalog";
+import { DELIVERY_NOTES, FINAL_NOTE, formatCatalogued, fullName, imageSrcset, imageUrl, isSoldOut, shareImageUrl, type Sample } from "../data/catalog";
 import { html } from "../html";
 import { document } from "../layout";
 import { formatEur } from "../money";
@@ -7,7 +7,7 @@ import { sampleLd } from "../seo";
 
 function gallery(sample: Sample) {
   const total = sample.figures.length;
-  const title = `${sample.name} ${sample.colour}`;
+  const title = fullName(sample);
   return html`<section class="gallery" aria-label="Photos of ${title}">
     <div class="gallery__track" data-gallery>
       ${sample.figures.map(
@@ -52,7 +52,7 @@ function buyForm(sample: Sample) {
 
 export function samplePage(origin: string, sample: Sample): string {
   const soldOut = isSoldOut(sample);
-  const spec: [string, string][] = [...sample.spec, ["CATALOGUED", formatCatalogued(sample.catalogued)]];
+  const spec: [string, string][] = sample.catalogued ? [...sample.spec, ["CATALOGUED", formatCatalogued(sample.catalogued)]] : sample.spec;
   const content = html`<nav class="crumbs label" aria-label="Breadcrumb">
       <a href="/">← LIBRARY</a><span aria-hidden="true">/</span><span class="label--ink" aria-current="page">${sample.name} [${sample.number}]</span>
     </nav>
@@ -68,13 +68,15 @@ export function samplePage(origin: string, sample: Sample): string {
           </div>
         </div>
         ${buyForm(sample)}
-        <div class="spec">
-          <h2 class="spec__head label">SPEC SHEET</h2>
-          <dl>${spec.map(([key, value]) => html`<div class="kv"><dt>${key}</dt><dd>${value}</dd></div>`)}</dl>
-        </div>
+        ${spec.length
+          ? html`<div class="spec">
+              <h2 class="spec__head label">SPEC SHEET</h2>
+              <dl>${spec.map(([key, value]) => html`<div class="kv"><dt>${key}</dt><dd>${value}</dd></div>`)}</dl>
+            </div>`
+          : ""}
         <div class="notes">
           ${sample.important ? html`<p><span class="label--accent">* </span>${sample.important}</p>` : ""}
-          <ul class="notes__list muted">${sample.fit.map((line) => html`<li>${line}</li>`)}</ul>
+          ${sample.fit.length ? html`<ul class="notes__list muted">${sample.fit.map((line) => html`<li>${line}</li>`)}</ul>` : ""}
           <ul class="notes__list muted">${DELIVERY_NOTES.map((line) => html`<li>${line}</li>`)}</ul>
           <p class="notes__final">${FINAL_NOTE}</p>
         </div>
@@ -82,10 +84,11 @@ export function samplePage(origin: string, sample: Sample): string {
       </section>
     </div>`;
   const specSummary = sample.spec.map(([, value]) => value.toLowerCase()).slice(0, 3).join(", ");
+  const described = `${sample.name}${sample.colour ? ` in ${sample.colour.toLowerCase()}` : ""}, sample [${sample.number}] from the Ashtray sample library`;
   return document(
     {
-      title: `${sample.name} ${sample.colour} [${sample.number}]`,
-      description: `${sample.name} in ${sample.colour.toLowerCase()}, sample [${sample.number}] from the Ashtray sample library: ${specSummary}. ${soldOut ? "Sold out" : formatEur(sample.priceCents)}. Shipped from Riga.`,
+      title: `${fullName(sample)} [${sample.number}]`,
+      description: `${described}${specSummary ? `: ${specSummary}` : ""}. ${soldOut ? "Sold out" : formatEur(sample.priceCents)}. Shipped from Riga.`,
       path: `/sample/${sample.slug}`,
       origin,
       image: shareImageUrl(sample),

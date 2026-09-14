@@ -6,6 +6,7 @@
 - The old Big Cartel shop, its archive and all research and planning docs are in the sibling repo `alekajs/ashtray-apparel-archive`, locally `../ashtray-apparel`. Its CLAUDE.md, PLAN.md and BUILD-PLAN.md hold the owner's earlier decisions and the payments/admin plan.
 
 ## Status (2026-09-14)
+- **Live** at ashtray-apparel.aleksisr7.workers.dev: Workers Builds deploys every push to `main` of this repo (switched 2026-09-14). The archive repo is no longer connected; still don't push its uncommitted wrangler rename without the owner.
 - **Built:** library, sample pages, cart (browser storage + server-priced `/api/quote`), menus, Our Story, policies, contact page, 404, redirects from old URLs, sitemap/robots.
 - **Next:** Stripe Checkout (test mode first), automatic stock, the contact form email, then the admin panel. Until then `SITE.checkoutOpen` is false, and the contact POST only shows a notice.
 
@@ -20,6 +21,7 @@
   - shipping zones in `src/data/shipping.ts`
   - four discount codes in `src/data/discounts.ts` (percentages apply to samples only, never shipping)
   - stock 1 per size, KISS TEE 0
+  - samples [06]–[12] (added 2026-09-14, folder names as slugs) are placeholders: €50, S/M/L, no spec or fit notes, one cut-out photo; names come from the folder names until the owner supplies real ones
   - contact and order emails later go to ralfs@ashtraystudio.eu
 
 ## Rules

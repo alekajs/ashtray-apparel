@@ -139,6 +139,13 @@ export async function handle(request: Request, env: Env): Promise<Response> {
 
   const target = canonicalPath(path);
 
+  // Plain http goes to https (browsers ignore HSTS sent over http). Local development stays on http.
+  if (url.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) {
+    const readOnly = method === "GET" || method === "HEAD";
+    const secure = new URL(`${readOnly ? target : path.replace(/[/\\]+/g, "/")}${url.search}`, `https://${url.host}`);
+    return new Response(null, { status: readOnly ? 301 : 308, headers: { Location: secure.href } });
+  }
+
   // www.<main domain> forwards to the main domain in one hop (old page addresses are mapped on the way).
   const main = env.SITE_ORIGIN ? new URL(env.SITE_ORIGIN) : null;
   if (main && url.hostname === `www.${main.hostname}`) {
@@ -157,7 +164,11 @@ export async function handle(request: Request, env: Env): Promise<Response> {
   }
 
   if (path === "/api/quote") {
-    if (method !== "POST") return jsonResponse({ error: "method_not_allowed" }, 405);
+    if (method !== "POST") {
+      const res = jsonResponse({ error: "method_not_allowed" }, 405);
+      res.headers.set("Allow", "POST");
+      return res;
+    }
     const text = await readLimited(request, MAX_BODY_BYTES);
     if (text === null) return jsonResponse({ error: "too_large" }, 413);
     try {

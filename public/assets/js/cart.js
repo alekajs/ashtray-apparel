@@ -108,7 +108,7 @@
   function renderRow(line, index) {
     const row = el("li", `row${line.state === "ok" ? "" : " row--problem"}`);
     row.dataset.key = keyOf(line);
-    const title = line.name ? `${line.name} ${line.colour}` : "Sample";
+    const title = line.name ? [line.name, line.colour].filter(Boolean).join(" ") : "Sample";
 
     if (line.image) {
       const img = el("img", "row__img");

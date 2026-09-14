@@ -27,7 +27,7 @@ export function sampleTile(sample: Sample, index: number): Html {
   return html`<li>
     <a class="tile${isSoldOut(sample) ? " tile--sold" : ""}" href="/sample/${sample.slug}">
       ${picture}
-      <span class="tile__cap"><span class="tile__name">${sample.name}<span class="visually-hidden">, ${sample.colour.toLowerCase()}</span></span>${priceTag(sample)}</span>
+      <span class="tile__cap"><span class="tile__name">${sample.name}${sample.colour ? html`<span class="visually-hidden">, ${sample.colour.toLowerCase()}</span>` : ""}</span>${priceTag(sample)}</span>
     </a>
   </li>`;
 }

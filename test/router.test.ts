@@ -202,6 +202,30 @@ describe("pages", () => {
     expect(body).not.toContain("€15.00");
   });
 
+  it("sends plain http to https in one hop, except on this computer", async () => {
+    const res = await handle(new Request("http://ashtray-apparel.example.workers.dev/product/basic-mocha?ref=ig"), env);
+    expect(res.status).toBe(301);
+    expect(res.headers.get("Location")).toBe("https://ashtray-apparel.example.workers.dev/sample/basic-mocha?ref=ig");
+    const post = await handle(new Request("http://ashtray-apparel.example.workers.dev/contact", { method: "POST", body: "a=1" }), env);
+    expect(post.status).toBe(308);
+    expect(post.headers.get("Location")).toBe("https://ashtray-apparel.example.workers.dev/contact");
+    const sneaky = await handle(new Request("http://ashtray-apparel.example.workers.dev//evil.example/x", { method: "POST", body: "a=1" }), env);
+    expect(new URL(sneaky.headers.get("Location") ?? "").hostname).toBe("ashtray-apparel.example.workers.dev");
+    expect((await handle(new Request("http://127.0.0.1:8787/"), env)).status).toBe(200);
+  });
+
+  it("renders newly added samples without a description", async () => {
+    const res = await get("/sample/cyber-tee-red");
+    expect(res.status).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("<title>CYBER TEE RED [09] | Ashtray</title>");
+    expect(body).not.toContain("SPEC SHEET");
+    expect(body).toContain("€50");
+    const jeans = await (await get("/sample/baggy-jeans")).text();
+    expect(jeans).toContain("<title>BAGGY JEANS [06] | Ashtray</title>");
+    expect(jeans).not.toMatch(/BAGGY JEANS {2}|BAGGY JEANS in |library: \./);
+  });
+
   it("rejects other methods on pages", async () => {
     expect((await get("/", { method: "POST" })).status).toBe(405);
   });
@@ -221,6 +245,8 @@ describe("/api/quote", () => {
   it("rejects bad JSON, big bodies and GET", async () => {
     expect((await post("{nope")).status).toBe(400);
     expect((await post(JSON.stringify({ items: "x".repeat(30000) }))).status).toBe(413);
-    expect((await get("/api/quote")).status).toBe(405);
+    const wrongMethod = await get("/api/quote");
+    expect(wrongMethod.status).toBe(405);
+    expect(wrongMethod.headers.get("Allow")).toBe("POST");
   });
 });

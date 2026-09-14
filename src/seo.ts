@@ -1,4 +1,4 @@
-import { SAMPLES, imageUrl, isSoldOut, type Sample } from "./data/catalog";
+import { SAMPLES, fullName, imageUrl, isSoldOut, type Sample } from "./data/catalog";
 import { INFO_PAGES } from "./data/pages";
 import { SITE } from "./data/settings";
 
@@ -24,7 +24,7 @@ export function libraryLd(origin: string): object {
     itemListElement: SAMPLES.map((sample, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      name: `${sample.name} ${sample.colour}`,
+      name: fullName(sample),
       url: `${origin}/sample/${sample.slug}`,
     })),
   };
@@ -36,7 +36,7 @@ export function sampleLd(origin: string, sample: Sample): object[] {
     {
       "@context": "https://schema.org",
       "@type": "Product",
-      name: `${sample.name} ${sample.colour}`,
+      name: fullName(sample),
       sku: `ASH-S${sample.number}`,
       url,
       image: sample.figures.map((figure) => `${origin}${imageUrl(sample, figure.n, 1600)}`),
@@ -44,7 +44,7 @@ export function sampleLd(origin: string, sample: Sample): object[] {
       offers: sample.sizes.map((size) => ({
         "@type": "Offer",
         sku: `ASH-S${sample.number}-${size.code}`,
-        name: `${sample.name} ${sample.colour} (${size.code})`,
+        name: `${fullName(sample)} (${size.code})`,
         price: (sample.priceCents / 100).toFixed(2),
         priceCurrency: "EUR",
         url,

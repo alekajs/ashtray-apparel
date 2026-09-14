@@ -19,6 +19,7 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 - **Shipping:** Omniva, the old Big Cartel rates. Latvia €2.50 + €0.70 per extra item; Estonia/Lithuania €5.20 + €0.80; Finland €12 + €2; rest of Europe €30 + €5.
 - **Discount codes:** FREAKYYAH (15% off €70+ of samples), SWAGG10 (10%), EQUE15 (15%, 1 use left), FREESWAGG (free shipping in Latvia).
 - **Stock:** 1 per size; KISS TEE is sold out.
+- **Samples [06]–[12]** (added 14 Sept 2026) have a placeholder €50 price, sizes S/M/L and no description yet.
 - **Old links still work:** `/product/basic-mocha`, `/products` and similar old addresses redirect to the new ones.
 
 **Not connected yet (next step):**
@@ -36,10 +37,11 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 | Our Story and policy wording | `src/data/pages.ts` |
 | Look and layout | `public/assets/css/site.css` |
 | Photos | originals in the archive repo, then run `python scripts/build-images.py ../ashtray-apparel` |
+| A new sample | put its photos in a new folder `images/products/<name>/` in the archive (a cut-out `01-….png` is enough), add it to `src/data/catalog.ts` with the same `<name>`, then run the photo script |
 
 ## Run it on your computer
 
-Needs Node.js 22 or newer.
+Needs Node.js 22.12 or newer (Cloudflare builds with Node 24).
 
 ```bash
 npm install
@@ -50,11 +52,11 @@ Then open http://localhost:8787. Run `npm run check` for the type check and test
 
 ## Hosting (Cloudflare Workers)
 
-The site runs as the Cloudflare Worker **ashtray-apparel** (`wrangler.jsonc`). Once the Worker is connected to this repository (Workers Builds), every push to `main` checks and deploys the site automatically.
+The site runs as the Cloudflare Worker **ashtray-apparel** (`wrangler.jsonc`). The Worker is connected to this repository (Workers Builds): every push to `main` checks and deploys the site automatically, usually within a minute.
 
-### Switching the existing Worker to this repository (one time)
+### Switching the existing Worker to this repository (done 14 Sept 2026)
 
-The Worker was built from the old repo, now renamed **ashtray-apparel-archive**. Switch it over like this:
+The Worker used to build from the old repo, now renamed **ashtray-apparel-archive**. A renamed GitHub repo keeps its connection, so the switch had to be made by hand. For the record, or if it ever needs redoing:
 
 1. **GitHub** → your profile → **Settings → Applications → Cloudflare Workers and Pages → Configure**. Under *Repository access*, make sure **ashtray-apparel** is included (or "All repositories").
 2. **Cloudflare** → **Workers & Pages → ashtray-apparel → Settings → Build**. At *Git repository*, choose **Disconnect**, then **Connect** and pick **alekajs/ashtray-apparel**.
@@ -68,7 +70,7 @@ The Worker was built from the old repo, now renamed **ashtray-apparel-archive**.
    | Root directory | empty |
    | Builds for non-production branches | off |
 
-4. Start the first build: **Deployments → Retry / Trigger build**, or push any commit to `main`.
+4. Start the first build by pushing a commit to `main`. Don't press **Retry** on builds from before the switch: they rebuild the old archive.
 5. When the build log ends with *Deployed*, check `/`, `/sample/basic-mocha`, `/product/basic-mocha` (should forward to the sample page) and `/cart`.
 
 After switching, never use **Rollback** to a version from before the switch, because that would bring back the old copy of the Big Cartel site.

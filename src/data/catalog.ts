@@ -23,7 +23,8 @@ export interface Sample {
   colour: string;
   priceCents: number;
   onSale: boolean;
-  catalogued: string;
+  /** Date the sample was added to the library (shown in the spec sheet); leave out when unknown. */
+  catalogued?: string;
   sizes: Size[];
   spec: [string, string][];
   important?: string;
@@ -81,6 +82,14 @@ function figures(slug: string, captions: string[]): Figure[] {
 
 const sizes = (codes: SizeCode[], stock: number): Size[] => codes.map((code) => ({ code, stock }));
 
+/** A newly added sample with no description yet: placeholder price and sizes, one cut-out photo. */
+const draft = (slug: string, number: string, name: string, colour = ""): Sample => ({
+  slug, number, name, colour, priceCents: 5000, onSale: false,
+  sizes: sizes(["S", "M", "L"], 1), spec: [], fit: [],
+  figures: figures(slug, ["FLAT"]),
+  cutout: cutout(slug),
+});
+
 export const SAMPLES: Sample[] = [
   {
     slug: "abstract-tee", number: "01", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
@@ -112,7 +121,20 @@ export const SAMPLES: Sample[] = [
     figures: figures("basic-olive", ["FRONT", "BACK", "SLEEVE", "WORN, ALICE", "WORN, RALPH"]),
     cutout: cutout("basic-olive"),
   },
+  // Added 2026-09-14. Price, sizes and names are placeholders until the owner writes the descriptions.
+  draft("baggy-jeans", "06", "BAGGY JEANS"),
+  draft("chromatics-hoodie", "07", "CHROMATICS HOODIE"),
+  draft("cyber-tee-black", "08", "CYBER TEE", "BLACK"),
+  draft("cyber-tee-red", "09", "CYBER TEE", "RED"),
+  draft("cyber-waffle-blue", "10", "CYBER WAFFLE", "BLUE"),
+  draft("molly-brown", "11", "MOLLY", "BROWN"),
+  draft("molly-navy", "12", "MOLLY", "NAVY"),
 ];
+
+/** "CYBER TEE RED", or just the name when there's no colour. */
+export function fullName(sample: Sample): string {
+  return sample.colour ? `${sample.name} ${sample.colour}` : sample.name;
+}
 
 export function getSample(slug: string): Sample | undefined {
   return SAMPLES.find((sample) => sample.slug === slug);

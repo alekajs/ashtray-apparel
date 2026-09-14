@@ -16,10 +16,11 @@ from pathlib import Path
 from PIL import Image
 
 WIDTHS = (480, 960, 1600)
-SAMPLES = ["abstract-tee", "crawler", "kiss-tee", "basic-mocha", "basic-olive"]
 
 root = Path(__file__).resolve().parent.parent
 archive = Path(sys.argv[1] if len(sys.argv) > 1 else root.parent / "ashtray-apparel").resolve()
+# One folder per sample under images/products/<slug>; the folder name is the slug in src/data/catalog.ts.
+SAMPLES = sorted(p.name for p in (archive / "images" / "products").iterdir() if p.is_dir())
 public = root / "public" / "img"
 manifest = {"samples": {}, "cutouts": {}, "pages": {}}
 
@@ -32,16 +33,21 @@ def save_webp(im, path, width, quality=80):
 
 
 for slug in SAMPLES:
-    files = sorted((archive / "images" / "products" / slug).glob("*.jpg"))
+    folder = archive / "images" / "products" / slug
+    # Full photos are JPEGs. A sample that only has a cut-out PNG so far uses the cut-out as its photo.
+    files = sorted(folder.glob("*.jpg")) or sorted(folder.glob("01-*.png"))
     if not files:
         sys.exit(f"no photos found for {slug} in {archive}")
     entries = []
     for index, src in enumerate(files, 1):
-        im = Image.open(src).convert("RGB")
+        im = Image.open(src)
+        im = im.convert("RGBA") if src.suffix == ".png" else im.convert("RGB")
         for width in WIDTHS:
             save_webp(im, public / "samples" / slug / f"{index:02d}-{width}.webp", width)
         if index == 1:
-            og = im.resize((1200, round(im.height * 1200 / im.width)), Image.LANCZOS)
+            flat = Image.new("RGB", im.size, (7, 7, 7))
+            flat.paste(im, (0, 0), im if im.mode == "RGBA" else None)
+            og = flat.resize((1200, round(im.height * 1200 / im.width)), Image.LANCZOS)
             og.save(public / "samples" / slug / "share.jpg", "JPEG", quality=82, optimize=True, progressive=True)
         entries.append({"n": index, "w": im.width, "h": im.height})
     manifest["samples"][slug] = entries
