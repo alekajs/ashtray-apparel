@@ -1378,7 +1378,15 @@ main {
 }
 
 .fig--single {
+  width: 100%;
+  max-width: 260px;
   padding: 0;
+}
+
+@media (min-width: 1024px) {
+  .fig--single {
+    max-width: 340px;
+  }
 }
 
 .story__text {
