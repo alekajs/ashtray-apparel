@@ -12,7 +12,7 @@ export function homePage(origin: string): string {
   return document(
     {
       title: "Sample Library",
-      description: "Samples made by Ashtray in Riga: heavyweight tees and zip ups, one piece per size, shipped within Europe.",
+      description: "The Ashtray sample library: our own heavyweight tees and zip ups, one piece per size, shipped from Riga within Europe.",
       path: "/",
       origin,
       jsonLd: [...organizationLd(origin), libraryLd(origin)],

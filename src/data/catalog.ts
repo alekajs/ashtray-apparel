@@ -44,7 +44,7 @@ const HOODIE_FIT = ["TRUE TO SIZE - BOXY RELAXED FIT", "RALPH IS 6 FT (183 CM) A
 const HOODIE_IMPORTANT = "HOODIES ARE NOT PREWASHED. TO GET THEIR TRUE FEEL AND FIT, PLEASE WASH THEM UPON ARRIVAL.";
 const HOODIE_SPEC: [string, string][] = [
   ["FABRIC", "100% COTTON FRENCH TERRY"],
-  ["WEIGHT", "500 GSM"],
+  ["WEIGHT", "HEAVYWEIGHT, 500 GSM"],
   ["FINISH", "STONE WASHED"],
   ["ZIPPER", "YKK"],
   ["EMBROIDERY", "RIGHT SLEEVE + BACK"],
@@ -52,7 +52,7 @@ const HOODIE_SPEC: [string, string][] = [
 ];
 const teeSpec = (gsm: number): [string, string][] => [
   ["FABRIC", "100% COTTON"],
-  ["WEIGHT", `${gsm} GSM`],
+  ["WEIGHT", `HEAVYWEIGHT, ${gsm} GSM`],
   ["PRINT", "SCREENPRINT"],
   ["FIT", "CROPPED / BOXY"],
 ];

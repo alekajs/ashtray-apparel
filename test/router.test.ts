@@ -27,6 +27,14 @@ describe("canonicalPath", () => {
     expect(canonicalPath("/cart.html")).toBe("/cart");
     expect(canonicalPath("/")).toBe("/");
     expect(canonicalPath("/product/unknown")).toBe("/product/unknown");
+    expect(canonicalPath("/Product/Basic-Mocha")).toBe("/sample/basic-mocha");
+    expect(canonicalPath("/OUR-STORY")).toBe("/our-story");
+  });
+
+  it("never produces a protocol-relative path", () => {
+    for (const path of ["//evil.com/", "///evil.com/", String.raw`/\evil.com/`, "//evil.com/x/", String.raw`/\/evil.com`]) {
+      expect(canonicalPath(path).startsWith("//")).toBe(false);
+    }
   });
 });
 
@@ -75,6 +83,39 @@ describe("pages", () => {
     expect(body).not.toContain("data-add-button");
   });
 
+  it("never redirects to another website", async () => {
+    for (const path of ["//evil.com/", "///evil.com/", "//evil.com/x/?q=1", "/%2F%2Fevil.com/"]) {
+      const res = await get(path);
+      const location = res.headers.get("Location");
+      if (location) {
+        expect(location.startsWith("/")).toBe(true);
+        expect(location.startsWith("//")).toBe(false);
+      }
+    }
+  });
+
+  it("escapes the requested path on the 404 page and leaves out canonical links", async () => {
+    const res = await get('/nope/"><script>alert(1)</script>');
+    const body = await res.text();
+    expect(res.status).toBe(404);
+    expect(body).not.toContain("<script>alert(1)");
+    expect(body).not.toContain('rel="canonical"');
+  });
+
+  it("keeps policy links on this site", async () => {
+    for (const path of ["/refund-policy", "/shipping-policy", "/privacy-policy"]) {
+      const body = await (await get(path)).text();
+      expect(body).not.toContain("bigcartel");
+    }
+    expect(await (await get("/refund-policy")).text()).toContain('<a href="/contact">Contact page</a>');
+  });
+
+  it("sends security headers including HSTS", async () => {
+    const res = await get("/");
+    expect(res.headers.get("Strict-Transport-Security")).toContain("max-age=");
+    expect(res.headers.get("X-Frame-Options")).toBe("DENY");
+  });
+
   it("redirects old links permanently", async () => {
     const res = await get("/product/basic-olive?ref=ig");
     expect(res.status).toBe(301);
@@ -88,10 +129,17 @@ describe("pages", () => {
     expect((await get("/sample/ghost")).status).toBe(404);
   });
 
-  it("answers the contact form without storing anything", async () => {
-    const res = await get("/contact", { method: "POST", body: new URLSearchParams({ name: "a", email: "a@b.c", message: "hi" }) });
+  it("answers the contact form without storing anything and keeps the visitor's text, escaped", async () => {
+    const res = await get("/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ name: "Ann", email: "a@b.c", message: "hi </textarea><script>x</script>" }).toString(),
+    });
     expect(res.status).toBe(200);
-    expect(await res.text()).toContain("THE CONTACT FORM OPENS SOON");
+    const body = await res.text();
+    expect(body).toContain("THE CONTACT FORM OPENS SOON");
+    expect(body).toContain('value="Ann"');
+    expect(body).toContain("hi &lt;/textarea&gt;&lt;script&gt;x&lt;/script&gt;");
   });
 
   it("serves robots.txt and a sitemap with every public page", async () => {

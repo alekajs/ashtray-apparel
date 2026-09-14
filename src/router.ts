@@ -32,6 +32,7 @@ function securityHeaders(headers: Headers): Headers {
   headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  headers.set("Strict-Transport-Security", "max-age=31536000");
   return headers;
 }
 
@@ -65,13 +66,60 @@ const LEGACY_PAGES: Record<string, string> = {
   "/shipping-policy.html": "/shipping-policy",
 };
 
-/** Old Big Cartel and archive-copy addresses, plus trailing slashes, map to the new canonical paths. */
+const MAX_BODY_BYTES = 20_000;
+
+/**
+ * Old Big Cartel and archive-copy addresses map to the new canonical paths. Repeated slashes and backslashes
+ * collapse to one (so "//other.site/" can never become a redirect to another website), trailing slashes are
+ * dropped, and mixed-case paths are lowered when that matches a real page.
+ */
 export function canonicalPath(path: string): string {
-  let target = path.length > 1 ? path.replace(/\/+$/, "") || "/" : path;
-  target = LEGACY_PAGES[target] ?? target;
-  const legacySample = target.match(/^\/product[/-]([a-z0-9-]+?)(?:\.html)?$/);
-  if (legacySample?.[1] && getSample(legacySample[1])) target = `/sample/${legacySample[1]}`;
-  return target;
+  let target = path.replace(/[/\\]+/g, "/");
+  if (!target.startsWith("/")) target = `/${target}`;
+  target = target.length > 1 ? target.replace(/\/+$/, "") || "/" : target;
+  const mapped = mapKnown(target);
+  if (mapped) return mapped;
+  // Mixed-case addresses (e.g. "/Product/Basic-Mocha") only redirect when the lowercase form is a real page.
+  return (target !== target.toLowerCase() && mapKnown(target.toLowerCase())) || target;
+}
+
+const PAGE_PATHS = new Set(["/", "/cart", "/menu", "/our-story", "/contact", ...INFO_PAGES.map((page) => `/${page.slug}`)]);
+
+function mapKnown(path: string): string | undefined {
+  const legacy = LEGACY_PAGES[path];
+  if (legacy) return legacy;
+  const legacySample = path.match(/^\/product[/-]([a-z0-9-]+?)(?:\.html)?$/);
+  if (legacySample?.[1] && getSample(legacySample[1])) return `/sample/${legacySample[1]}`;
+  const sample = path.match(/^\/sample\/([a-z0-9-]+)$/);
+  if (PAGE_PATHS.has(path) || (sample?.[1] && getSample(sample[1]))) return path;
+  return undefined;
+}
+
+/** Reads a request body as text, giving up (null) once it passes `limit` bytes. */
+async function readLimited(request: Request, limit: number): Promise<string | null> {
+  const declared = Number(request.headers.get("Content-Length"));
+  if (Number.isFinite(declared) && declared > limit) return null;
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 export async function handle(request: Request, env: Env): Promise<Response> {
@@ -82,13 +130,16 @@ export async function handle(request: Request, env: Env): Promise<Response> {
 
   const target = canonicalPath(path);
   if (target !== path && (method === "GET" || method === "HEAD")) {
-    return new Response(null, { status: 301, headers: { Location: `${target}${url.search}` } });
+    const destination = new URL(`${target}${url.search}`, url.origin);
+    if (destination.origin === url.origin) {
+      return new Response(null, { status: 301, headers: { Location: `${destination.pathname}${destination.search}` } });
+    }
   }
 
   if (path === "/api/quote") {
     if (method !== "POST") return jsonResponse({ error: "method_not_allowed" }, 405);
-    const text = await request.text();
-    if (text.length > 20_000) return jsonResponse({ error: "too_large" }, 413);
+    const text = await readLimited(request, MAX_BODY_BYTES);
+    if (text === null) return jsonResponse({ error: "too_large" }, 413);
     try {
       return jsonResponse(quote(JSON.parse(text)));
     } catch (error) {
@@ -98,8 +149,17 @@ export async function handle(request: Request, env: Env): Promise<Response> {
   }
 
   if (path === "/contact" && method === "POST") {
-    // The form isn't connected yet (next build step); answer with the page and a notice, keep nothing.
-    return htmlResponse(contactPage(origin, true), 200, "no-store");
+    // The form isn't connected yet (next build step): nothing is stored or sent. The page comes back with
+    // the notice and the visitor's own text, so they can copy it into a DM.
+    const text = (await readLimited(request, MAX_BODY_BYTES)) ?? "";
+    const form = new URLSearchParams(text);
+    const values = {
+      name: (form.get("name") ?? "").slice(0, 120),
+      email: (form.get("email") ?? "").slice(0, 200),
+      subject: (form.get("subject") ?? "").slice(0, 200),
+      message: (form.get("message") ?? "").slice(0, 5000),
+    };
+    return htmlResponse(contactPage(origin, values), 200, "no-store");
   }
 
   if (method !== "GET" && method !== "HEAD") {

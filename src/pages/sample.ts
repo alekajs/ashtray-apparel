@@ -9,21 +9,21 @@ function gallery(sample: Sample) {
   const total = sample.figures.length;
   const title = `${sample.name} ${sample.colour}`;
   return html`<section class="gallery" aria-label="Photos of ${title}">
-    <div class="gallery__track" data-gallery tabindex="0">
+    <div class="gallery__track" data-gallery>
       ${sample.figures.map(
         (figure, i) => html`<figure class="fig" id="fig-${figure.n}">
           <div class="fig__frame"><img src="${imageUrl(sample, figure.n, 960)}" srcset="${imageSrcset(sample, figure.n)}"
             sizes="(min-width: 1024px) ${i === 0 || (i === total - 1 && (i + 1) % 2 === 0) ? "54vw" : "26vw"}, 96vw"
             width="${figure.width}" height="${figure.height}" alt="${title}, ${figure.caption.toLowerCase()}"
             ${i === 0 ? html`fetchpriority="high"` : html`loading="lazy"`} decoding="async"></div>
-          <figcaption><span>FIG. ${String(figure.n).padStart(2, "0")} — ${figure.caption}</span><span class="fig__count">${figure.n} / ${total}</span></figcaption>
+          <figcaption><span>FIG. ${String(figure.n).padStart(2, "0")} — ${figure.caption}</span><span class="fig__count">${figure.n}&nbsp;/&nbsp;${total}</span></figcaption>
         </figure>`,
       )}
     </div>
     ${total > 1
       ? html`<div class="gallery__index" data-gallery-index>
           ${sample.figures.map(
-            (figure, i) => html`<button type="button" data-target="fig-${figure.n}" aria-label="Photo ${figure.n} of ${total}"${i === 0 ? html` aria-current="true"` : ""}>${String(figure.n).padStart(2, "0")}</button>`,
+            (figure, i) => html`<a href="#fig-${figure.n}" data-target="fig-${figure.n}"${i === 0 ? html` aria-current="true"` : ""}>${String(figure.n).padStart(2, "0")}<span class="visually-hidden">, photo ${figure.n} of ${total}</span></a>`,
           )}
         </div>`
       : ""}
@@ -74,8 +74,8 @@ export function samplePage(origin: string, sample: Sample): string {
         </div>
         <div class="notes">
           ${sample.important ? html`<p><span class="label--accent">* </span>${sample.important}</p>` : ""}
-          <p class="muted">${sample.fit.join(". ")}.</p>
-          <p class="muted">${DELIVERY_NOTES.join(". ")}.</p>
+          <ul class="notes__list muted">${sample.fit.map((line) => html`<li>${line}</li>`)}</ul>
+          <ul class="notes__list muted">${DELIVERY_NOTES.map((line) => html`<li>${line}</li>`)}</ul>
           <p class="notes__final">${FINAL_NOTE}</p>
         </div>
         ${studioBox()}

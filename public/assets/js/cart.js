@@ -23,6 +23,7 @@
   const total = $("[data-total]");
   const checkout = $("[data-checkout]");
   const checkoutMessage = $("[data-checkout-message]");
+  const announce = $("[data-cart-announce]");
   const headingCount = document.querySelector("[data-cart-heading-count]");
 
   const COUNTRY_KEY = "ashtray_country";
@@ -63,6 +64,10 @@
   }
 
   const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "S"}`;
+  const keyOf = (line) => `${line.sample}|${line.size}`;
+  const setText = (node, text) => {
+    if (node.textContent !== text) node.textContent = text;
+  };
 
   function stateNote(line) {
     if (line.state === "sold_out") return "SOLD OUT. REMOVE IT TO CHECK OUT.";
@@ -71,7 +76,12 @@
     return "";
   }
 
-  function updateItem(line, qty) {
+  // What to focus after the list is rebuilt (the element that had focus is replaced).
+  let pendingFocus = null;
+  let pendingAnnouncement = "";
+
+  function updateItem(line, qty, focusHint) {
+    pendingFocus = focusHint;
     const items = cart.read();
     const next = qty > 0
       ? items.map((item) => (item.sample === line.sample && item.size === line.size ? { ...item, qty } : item))
@@ -79,14 +89,15 @@
     cart.write(next);
   }
 
-  function renderRow(line) {
+  function renderRow(line, index) {
     const row = el("li", `row${line.state === "ok" ? "" : " row--problem"}`);
+    row.dataset.key = keyOf(line);
     const title = line.name ? `${line.name} ${line.colour}` : "Sample";
 
     if (line.image) {
       const img = el("img", "row__img");
       img.src = line.image;
-      img.alt = title;
+      img.alt = "";
       img.width = 76;
       img.height = 95;
       img.loading = "lazy";
@@ -105,61 +116,101 @@
     info.append(name, meta);
     const note = stateNote(line);
     if (note) info.append(el("span", "label label--accent", note));
-    const remove = el("button", "textbutton", "REMOVE");
-    remove.type = "button";
-    remove.setAttribute("aria-label", `Remove ${title}, size ${line.size}`);
-    remove.addEventListener("click", () => updateItem(line, 0));
-    info.append(remove);
 
-    const qty = el("div", "row__qty");
+    const actions = el("div", "row__actions");
     if (line.maxQty > 1 && line.qty > 0) {
       const select = el("select", "select");
       select.setAttribute("aria-label", `Quantity of ${title}, size ${line.size}`);
+      select.dataset.focus = "qty";
       for (let n = 1; n <= Math.min(line.maxQty, 10); n += 1) select.append(new Option(String(n), String(n), false, n === line.qty));
-      select.addEventListener("change", () => updateItem(line, Number(select.value)));
-      qty.append(select);
+      select.addEventListener("change", () => {
+        pendingAnnouncement = `${title}, size ${line.size}: quantity ${select.value}.`;
+        updateItem(line, Number(select.value), { key: keyOf(line), kind: "qty", index });
+      });
+      actions.append(select);
     } else if (line.qty > 0) {
-      qty.append(el("span", "label label--ink", `QTY ${line.qty}`));
+      const qty = el("span", "row__qty-value");
+      qty.append(el("span", "row__qty-label", "QTY "), String(line.qty));
+      actions.append(qty);
     }
+    const remove = el("button", "textbutton", "REMOVE");
+    remove.type = "button";
+    remove.dataset.focus = "remove";
+    remove.setAttribute("aria-label", `Remove ${title}, size ${line.size}`);
+    remove.addEventListener("click", () => {
+      pendingAnnouncement = `Removed ${title}, size ${line.size}.`;
+      updateItem(line, 0, { key: keyOf(line), kind: "remove", index });
+    });
+    actions.append(remove);
 
     const lineTotal = line.state === "sold_out" || line.state === "unavailable" ? "—" : eur(line.lineCents);
-    row.append(info, el("span", "row__size", line.size), qty, el("span", "row__total", lineTotal));
+    row.append(info, el("span", "row__size", line.size), actions, el("span", "row__total", lineTotal));
     return row;
+  }
+
+  function restoreFocus() {
+    if (!pendingFocus) return;
+    const hint = pendingFocus;
+    pendingFocus = null;
+    const allRows = Array.from(rows.children);
+    const same = allRows.find((row) => row.dataset.key === hint.key);
+    const target =
+      (same && same.querySelector(`[data-focus="${hint.kind}"]`)) ||
+      (allRows[Math.min(hint.index, allRows.length - 1)] && allRows[Math.min(hint.index, allRows.length - 1)].querySelector('[data-focus="remove"]')) ||
+      empty.querySelector("a");
+    if (target) target.focus();
   }
 
   let requestId = 0;
   let lastQuote = null;
 
   function render(quote, items) {
-    const synced = items.map((item) => {
-      const line = quote.lines.find((l) => l.sample === item.sample && l.size === item.size);
-      return line && line.state === "reduced" ? { ...item, qty: line.qty } : item;
-    });
+    // Keep the stored cart in step with what can actually be bought.
+    const synced = items
+      .filter((item) => {
+        const line = quote.lines.find((l) => l.sample === item.sample && l.size === item.size);
+        return !line || line.state !== "unavailable";
+      })
+      .map((item) => {
+        const line = quote.lines.find((l) => l.sample === item.sample && l.size === item.size);
+        return line && line.state === "reduced" ? { ...item, qty: line.qty } : item;
+      });
     if (JSON.stringify(synced) !== JSON.stringify(items)) cart.write(synced, { silent: true });
 
-    rows.replaceChildren(...quote.lines.map(renderRow));
-    empty.hidden = quote.lines.length > 0;
-    if (headingCount) headingCount.textContent = quote.units ? `[${plural(quote.units, "SAMPLE")}]` : "";
+    const lines = quote.lines.filter((line) => line.state !== "unavailable");
+    rows.replaceChildren(...lines.map(renderRow));
+    empty.hidden = lines.length > 0;
+    if (headingCount) setText(headingCount, quote.units ? `[${plural(quote.units, "SAMPLE")}]` : "");
 
-    subtotal.textContent = eur(quote.subtotalCents);
+    setText(subtotal, eur(quote.subtotalCents));
     if (quote.discount) {
       discountRow.hidden = false;
-      discountLabel.textContent = quote.discount.kind === "free_shipping" ? `FREE SHIPPING [${quote.discount.code}]` : `DISCOUNT [${quote.discount.code}]`;
-      discount.textContent = eur(-quote.discount.cents);
+      setText(discountLabel, quote.discount.kind === "free_shipping" ? `FREE SHIPPING [${quote.discount.code}]` : `DISCOUNT [${quote.discount.code}]`);
+      setText(discount, eur(-quote.discount.cents));
     } else {
       discountRow.hidden = true;
     }
-    shippingLabel.textContent = quote.units ? `SHIPPING [${quote.country} · ${plural(quote.units, "ITEM")}]` : "SHIPPING";
-    shipping.textContent = quote.shipping ? eur(quote.shipping.cents) : "—";
-    delivery.textContent = quote.shipping ? `OMNIVA WITH TRACKING · ${quote.shipping.delivery}` : "WE DON'T SHIP TO THAT COUNTRY YET.";
-    total.textContent = eur(quote.totalCents);
-    codeMessage.textContent = quote.discount
-      ? `* CODE APPLIED — “${quote.discount.description}”`
-      : quote.codeMessage
-        ? `* ${quote.codeMessage}`
-        : "";
+    setText(shippingLabel, quote.units ? `SHIPPING [${quote.country} · ${plural(quote.units, "ITEM")}]` : "SHIPPING");
+    setText(shipping, quote.shipping ? eur(quote.shipping.cents) : "—");
+    if (quote.shipping) {
+      delivery.replaceChildren("OMNIVA WITH TRACKING · ", el("span", "nowrap", quote.shipping.delivery));
+    } else {
+      delivery.replaceChildren("WE DON'T SHIP TO THAT COUNTRY YET.");
+    }
+    setText(total, eur(quote.totalCents));
+    setText(
+      codeMessage,
+      quote.discount ? `* CODE APPLIED — “${quote.discount.description}”` : quote.codeMessage ? `* ${quote.codeMessage}` : "",
+    );
     checkout.disabled = quote.units === 0;
-    checkoutMessage.textContent = "";
+    setText(checkoutMessage, "");
+
+    restoreFocus();
+    if (pendingAnnouncement) {
+      const where = quote.shipping ? `Shipping to ${quote.countryName.toLowerCase()} ${eur(quote.shipping.cents)}.` : "";
+      setText(announce, `${pendingAnnouncement} ${where} Total ${eur(quote.totalCents)}.`.replace(/\s+/g, " ").trim());
+      pendingAnnouncement = "";
+    }
   }
 
   async function refresh() {
@@ -177,7 +228,7 @@
       lastQuote = quote;
       render(quote, items);
     } catch {
-      if (id === requestId) checkoutMessage.textContent = "* COULDN'T UPDATE THE CART. CHECK YOUR CONNECTION AND TRY AGAIN.";
+      if (id === requestId) setText(checkoutMessage, "* COULDN'T UPDATE THE CART. CHECK YOUR CONNECTION AND TRY AGAIN.");
     }
   }
 
@@ -185,6 +236,7 @@
 
   country.addEventListener("change", () => {
     setStored(localStorage, COUNTRY_KEY, country.value);
+    pendingAnnouncement = `Shipping to ${country.options[country.selectedIndex].text.toLowerCase()}.`;
     refresh();
   });
 

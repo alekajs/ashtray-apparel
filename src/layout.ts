@@ -42,7 +42,7 @@ export function menuContent(currentPath: string, closeAction: Html): Html {
     { href: "/cart", label: "CART", count: "", current: currentPath === "/cart" },
   ];
   return html`<div class="menu__inner">
-    ${raw('<div class="ruler ruler--top" aria-hidden="true"></div>')}
+    ${rulers}
     ${bar(closeAction)}
     <div class="menu__body">
       <nav class="menu__nav" aria-label="Main">
@@ -51,7 +51,7 @@ export function menuContent(currentPath: string, closeAction: Html): Html {
       <div class="menu__side">
         <div class="menu__group">
           <p class="menu__group-title label">INFO</p>
-          <ul>${INFO_PAGES.map((p) => html`<li><a href="/${p.slug}">${p.title.toUpperCase()}</a></li>`)}</ul>
+          <ul>${INFO_PAGES.map((p) => html`<li><a href="/${p.slug}"${currentPath === `/${p.slug}` ? raw(' aria-current="page"') : ""}>${p.title.toUpperCase()}</a></li>`)}</ul>
         </div>
         <div class="menu__group">
           <p class="menu__group-title label">FOLLOW</p>
@@ -96,12 +96,12 @@ export function document(meta: PageMeta, content: Html, options: { menuPage?: bo
 <title>${title}</title>
 <meta name="description" content="${meta.description}">
 ${meta.noindex ? raw('<meta name="robots" content="noindex">') : ""}
-<link rel="canonical" href="${url}">
+${meta.noindex ? "" : html`<link rel="canonical" href="${url}">`}
 <meta property="og:type" content="${meta.ogType ?? "website"}">
 <meta property="og:site_name" content="${SITE.name}">
 <meta property="og:title" content="${meta.title || SITE.name}">
 <meta property="og:description" content="${meta.description}">
-<meta property="og:url" content="${url}">
+${meta.noindex ? "" : html`<meta property="og:url" content="${url}">`}
 <meta property="og:image" content="${image}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#070707">
@@ -118,7 +118,7 @@ ${(meta.jsonLd ?? []).map(jsonLdScript)}
 </head>
 <body${meta.bodyClass ? html` class="${meta.bodyClass}"` : ""}>
 <a class="skip" href="#main">Skip to content</a>
-${options.menuPage ? raw('<div class="ruler ruler--side" aria-hidden="true"></div>') : rulers}
+${options.menuPage ? "" : rulers}
 ${options.menuPage ? "" : bar(menuTrigger)}
 <main id="main">
 ${content}

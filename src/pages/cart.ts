@@ -27,7 +27,7 @@ export function cartPage(origin: string): string {
           <select id="ship-to" class="select select--full" data-country>
             ${countryOptions().map((c) => html`<option value="${c.code}"${c.code === HOME_COUNTRY ? html` selected` : ""}>${c.name}</option>`)}
           </select>
-          <p class="label label--faint" data-delivery>OMNIVA WITH TRACKING · APPROX. 1–3 DAYS</p>
+          <p class="label label--faint" data-delivery>OMNIVA WITH TRACKING · <span class="nowrap">APPROX. 1–3 DAYS</span></p>
         </div>
         <form class="field" data-code-form>
           <label class="label" for="discount-code">DISCOUNT CODE</label>
@@ -46,7 +46,8 @@ export function cartPage(origin: string): string {
         <div class="summary__checkout">
           <button class="btn btn--primary" type="button" data-checkout>[ CHECKOUT ]</button>
           <p class="message message--center" role="status" aria-live="polite" data-checkout-message></p>
-          <p class="label label--faint summary__note">SECURE PAYMENT ON STRIPE · <a class="summary__dm" href="${SITE.instagram.url}" rel="noopener">DM ${SITE.instagram.handle.toUpperCase()}</a></p>
+          <p class="label label--faint summary__note">${SITE.checkoutOpen ? html`SECURE PAYMENT ON STRIPE · ` : ""}<a class="summary__dm" href="${SITE.instagram.url}" rel="noopener">OR DM&nbsp;${SITE.instagram.handle.toUpperCase()}</a></p>
+          <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-cart-announce></p>
         </div>
       </aside>
     </div>`;

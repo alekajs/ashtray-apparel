@@ -56,6 +56,7 @@
   document.querySelectorAll("[data-menu-open]").forEach((trigger) => {
     trigger.addEventListener("click", (event) => {
       if (!menu || typeof menu.showModal !== "function") return; // falls back to the /menu page
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
       lastTrigger = trigger;
       renderCount();
@@ -68,10 +69,23 @@
     menu.querySelectorAll("[data-menu-close]").forEach((button) => {
       button.addEventListener("click", () => menu.close());
     });
+    let leaving = false;
     menu.addEventListener("close", () => {
       document.body.classList.remove("menu-open");
-      if (lastTrigger) lastTrigger.focus();
+      if (lastTrigger && !leaving) lastTrigger.focus();
+      leaving = false;
     });
+    // Close before navigating away, so Back never returns to a page with the menu still covering it.
+    const closeForNavigation = () => {
+      if (!menu.open) return;
+      leaving = true;
+      menu.close();
+    };
+    menu.addEventListener("click", (event) => {
+      const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      if (link && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) closeForNavigation();
+    });
+    window.addEventListener("pagehide", closeForNavigation);
   }
 
   // ---------------------------------------------------------------- add to cart
@@ -79,6 +93,8 @@
     const status = form.querySelector("[data-add-status]");
     const button = form.querySelector("[data-add-button]");
     let timer = 0;
+    // Our own "pick a size" message replaces the browser's popup (required stays for no-JS visitors).
+    form.noValidate = true;
 
     function setStatus(text, withCartLink) {
       if (!status) return;
@@ -86,6 +102,7 @@
       if (withCartLink) {
         const link = document.createElement("a");
         link.href = "/cart";
+        link.className = "nowrap";
         link.textContent = "VIEW CART →";
         status.append(" ", link);
       }
@@ -129,14 +146,15 @@
   document.querySelectorAll("[data-gallery]").forEach((track) => {
     const index = track.parentElement && track.parentElement.querySelector("[data-gallery-index]");
     if (!index) return;
-    const buttons = Array.from(index.querySelectorAll("button"));
+    const buttons = Array.from(index.querySelectorAll("a[data-target]"));
     const figures = Array.from(track.querySelectorAll(".fig"));
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     buttons.forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
         const figure = document.getElementById(button.dataset.target || "");
         if (!figure) return;
+        event.preventDefault();
         track.scrollTo({ left: figure.offsetLeft - figures[0].offsetLeft, behavior: reduceMotion ? "auto" : "smooth" });
       });
     });

@@ -27,7 +27,8 @@
 - **Escaping:** everything interpolated into HTML goes through `html\`\`` (auto-escaped). Use `raw()` only for strings authored in this repo.
 - **Secrets:** never in the repo or in chat. The owner adds them in the Cloudflare dashboard; local ones go in `.dev.vars` (git-ignored).
 - **Commits and pushes:** commit as the repo-local identity (alekajs, GitHub noreply email). A push to `main` redeploys the live site once the Worker is connected, so push only when the owner asks.
-- **Before committing:** run `npm run check` (tsc + vitest).
+- **Before committing:** run `npm run check` (tsc + vitest). Workers Builds runs it as the build command too.
+- **Config:** SITE_ORIGIN and similar settings belong in `wrangler.jsonc` `vars`, not the dashboard (deploys overwrite dashboard vars).
 - **Talking to the owner:** plain, non-technical language.
 
 ## Commands

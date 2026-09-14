@@ -9,7 +9,7 @@ export function organizationLd(origin: string): object[] {
       "@type": "Organization",
       name: SITE.name,
       url: origin,
-      logo: `${origin}/img/brand/logo-white.png`,
+      logo: `${origin}/img/brand/icon-192.png`,
       sameAs: [SITE.instagram.url, SITE.tiktok.url],
     },
     { "@context": "https://schema.org", "@type": "WebSite", name: SITE.name, url: origin },

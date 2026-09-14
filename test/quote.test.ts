@@ -58,6 +58,14 @@ describe("quote", () => {
     expect(ee.codeMessage).toBe("FREESWAGG ONLY WORKS FOR SHIPPING TO LATVIA.");
   });
 
+  it("gives one clear message for any valid code on an empty or sold-out-only cart", () => {
+    for (const code of ["FREAKYYAH", "SWAGG10", "FREESWAGG"]) {
+      expect(quote({ items: [], country: "LV", code }, NOW).codeMessage).toBe("ADD A SAMPLE TO USE THIS CODE.");
+      expect(quote({ items: [{ sample: "kiss-tee", size: "M", qty: 1 }], country: "LV", code }, NOW).codeMessage).toBe("ADD A SAMPLE TO USE THIS CODE.");
+    }
+    expect(quote({ items: [], code: "NOPE" }, NOW).codeMessage).toBe("THAT CODE ISN'T VALID.");
+  });
+
   it("rejects unknown and deleted codes", () => {
     expect(quote({ items: [mocha], code: "SWAGG30" }, NOW).codeMessage).toBe("THAT CODE ISN'T VALID.");
     expect(quote({ items: [mocha], code: "nope" }, NOW).discount).toBeNull();

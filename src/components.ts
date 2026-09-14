@@ -20,7 +20,7 @@ export function sampleTile(sample: Sample, index: number): Html {
       <span class="tile__img"><img src="${imageUrl(sample, 1, 480)}" srcset="${imageSrcset(sample, 1)}"
         sizes="(min-width: 1200px) 18vw, (min-width: 768px) 30vw, 46vw"
         width="${first?.width ?? 2000}" height="${first?.height ?? 2444}"
-        alt="${sample.name} ${sample.colour}" ${eager ? html`fetchpriority="${index === 0 ? "high" : "auto"}"` : html`loading="lazy"`} decoding="async"></span>
+        alt="" ${eager ? html`fetchpriority="${index === 0 ? "high" : "auto"}"` : html`loading="lazy"`} decoding="async"></span>
       <span class="tile__cap"><span class="tile__name">${sample.name} <span class="num">[${sample.number}]</span></span>${priceTag(sample)}</span>
     </a>
   </li>`;

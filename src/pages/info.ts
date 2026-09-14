@@ -7,22 +7,29 @@ import images from "../data/images.json";
 
 const story = (images as { pages: Record<string, { w: number; h: number }> }).pages["our-story"] ?? { w: 2142, h: 2856 };
 
+/** Plain-text summary for meta descriptions, cut at a word boundary. */
+export function summarize(markup: string, max = 155): string {
+  const plain = markup.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (plain.length <= max) return plain;
+  const cut = plain.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > 60 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:]+$/, "")}…`;
+}
+
 export function ourStoryPage(origin: string): string {
   const content = html`<div class="prose-page story">
-    <div class="prose-page__head">
+    <div class="prose-page__head story__head">
       <h1 class="display display--xl">OUR<br>STORY.${cursor()}</h1>
-    </div>
-    <div class="story__body">
       <figure class="fig fig--single">
         <div class="fig__frame"><img src="/img/pages/our-story-960.webp" srcset="/img/pages/our-story-480.webp 480w, /img/pages/our-story-960.webp 960w"
-          sizes="(min-width: 1024px) 32vw, 90vw" width="${story.w}" height="${story.h}" alt="The two of us with a vintage Mercedes in an underground car park" decoding="async"></div>
-        <figcaption><span>FIG. 01 — RIGA</span></figcaption>
+          sizes="(min-width: 1024px) 36vw, 90vw" width="${story.w}" height="${story.h}" alt="The two of us with a vintage Mercedes in an underground car park" decoding="async"></div>
+        <figcaption><span>FIG. 01 — THE TWO OF US</span></figcaption>
       </figure>
-      <div class="prose story__text">${OUR_STORY.paragraphs.map((p) => html`<p>${p}</p>`)}</div>
     </div>
+    <div class="prose story__text">${OUR_STORY.paragraphs.map((p) => html`<p>${p}</p>`)}</div>
   </div>`;
   return document(
-    { title: OUR_STORY.title, description: OUR_STORY.paragraphs[0] ?? "", path: "/our-story", origin, bodyClass: "page-story" },
+    { title: OUR_STORY.title, description: summarize(OUR_STORY.paragraphs[0] ?? ""), path: "/our-story", origin, bodyClass: "page-story" },
     content,
   );
 }
@@ -34,25 +41,32 @@ export function infoPage(origin: string, page: InfoPage): string {
     </div>
     <div class="prose">${raw(page.html)}</div>
   </div>`;
-  const plain = page.html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   return document(
-    { title: page.title, description: plain.slice(0, 155), path: `/${page.slug}`, origin, bodyClass: "page-info" },
+    { title: page.title, description: summarize(page.html), path: `/${page.slug}`, origin, bodyClass: "page-info" },
     content,
   );
 }
 
-export function contactPage(origin: string, submitted = false): string {
+export interface ContactValues {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export function contactPage(origin: string, submitted?: ContactValues): string {
+  const v = submitted ?? { name: "", email: "", subject: "", message: "" };
   const content = html`<div class="prose-page">
     <div class="prose-page__head">
       <h1 class="display display--xl">CONTACT${cursor()}</h1>
-      <p class="label">OR DM <a class="link" href="${SITE.instagram.url}" rel="noopener">${SITE.instagram.handle.toUpperCase()} ↗</a></p>
+      <p class="label">OR DM <a class="link" href="${SITE.instagram.url}" rel="noopener">${SITE.instagram.handle.toUpperCase()}&nbsp;↗</a></p>
     </div>
     <form class="contact" method="post" action="/contact">
-      ${submitted ? html`<p class="notice" role="status">${SITE.contactClosedMessage}</p>` : ""}
-      <div class="field"><label class="label" for="contact-name">NAME</label><input class="input" id="contact-name" name="name" autocomplete="name" required maxlength="120"></div>
-      <div class="field"><label class="label" for="contact-email">EMAIL</label><input class="input" id="contact-email" name="email" type="email" autocomplete="email" required maxlength="200"></div>
-      <div class="field"><label class="label" for="contact-subject">SUBJECT</label><input class="input" id="contact-subject" name="subject" maxlength="200"></div>
-      <div class="field"><label class="label" for="contact-message">MESSAGE</label><textarea class="input input--area" id="contact-message" name="message" rows="7" required maxlength="5000"></textarea></div>
+      <p class="notice" ${submitted ? html`role="alert"` : html`role="note"`}>${SITE.contactClosedMessage}</p>
+      <div class="field"><label class="label" for="contact-name">NAME</label><input class="input" id="contact-name" name="name" autocomplete="name" required maxlength="120" value="${v.name}"></div>
+      <div class="field"><label class="label" for="contact-email">EMAIL</label><input class="input" id="contact-email" name="email" type="email" autocomplete="email" required maxlength="200" value="${v.email}"></div>
+      <div class="field"><label class="label" for="contact-subject">SUBJECT</label><input class="input" id="contact-subject" name="subject" maxlength="200" value="${v.subject}"></div>
+      <div class="field"><label class="label" for="contact-message">MESSAGE</label><textarea class="input input--area" id="contact-message" name="message" rows="7" required maxlength="5000">${v.message}</textarea></div>
       <div class="contact__actions">
         <button class="btn btn--primary btn--auto" type="submit">[ SEND MESSAGE ]</button>
       </div>
@@ -67,7 +81,7 @@ export function contactPage(origin: string, submitted = false): string {
 export function menuPage(origin: string): string {
   return document(
     { title: "Menu", description: "Ashtray menu.", path: "/menu", origin, noindex: true, bodyClass: "page-menu" },
-    html`<div class="menu menu--page">${menuContent("/menu", html`<a class="bar__action" href="/">[ CLOSE ]</a>`)}</div>`,
+    html`<div class="menu menu--page"><h1 class="visually-hidden">Menu</h1>${menuContent("/menu", html`<a class="bar__action" href="/">[ CLOSE ]</a>`)}</div>`,
     { menuPage: true },
   );
 }

@@ -50,19 +50,38 @@ Then open http://localhost:8787. Run `npm run check` for the type check and test
 
 ## Hosting (Cloudflare Workers)
 
-The site runs as the Cloudflare Worker **ashtray-apparel** (`wrangler.jsonc`). With the Worker connected to this repository in Cloudflare (Workers Builds), every push to `main` builds and deploys automatically:
+The site runs as the Cloudflare Worker **ashtray-apparel** (`wrangler.jsonc`). Once the Worker is connected to this repository (Workers Builds), every push to `main` checks and deploys the site automatically.
 
-| Setting | Value |
-|---|---|
-| Project name | `ashtray-apparel` |
-| Build command | empty |
-| Deploy command | `npx wrangler deploy` |
-| Root directory | empty |
-| Production branch | `main` |
+### Switching the existing Worker to this repository (one time)
 
-Cloudflare installs the packages from `package-lock.json` before deploying.
+The Worker was built from the old repo, now renamed **ashtray-apparel-archive**. Switch it over like this:
 
-**Custom domain later:** set `SITE_ORIGIN` (Worker → Settings → Variables) to `https://www.ashtrayapparel.com`, so links shared on social media point at the domain rather than the workers.dev address.
+1. **GitHub** → your profile → **Settings → Applications → Cloudflare Workers and Pages → Configure**. Under *Repository access*, make sure **ashtray-apparel** is included (or "All repositories").
+2. **Cloudflare** → **Workers & Pages → ashtray-apparel → Settings → Build**. At *Git repository*, choose **Disconnect**, then **Connect** and pick **alekajs/ashtray-apparel**.
+3. Use these build settings:
+
+   | Setting | Value |
+   |---|---|
+   | Branch | `main` |
+   | Build command | `npm run check` (stops the deploy if the type check or tests fail) |
+   | Deploy command | `npx wrangler deploy` |
+   | Root directory | empty |
+   | Builds for non-production branches | off |
+
+4. Start the first build: **Deployments → Retry / Trigger build**, or push any commit to `main`.
+5. When the build log ends with *Deployed*, check `/`, `/sample/basic-mocha`, `/product/basic-mocha` (should forward to the sample page) and `/cart`.
+
+After switching, never use **Rollback** to a version from before the switch, because that would bring back the old copy of the Big Cartel site.
+
+Cloudflare installs the packages from `package-lock.json` before building.
+
+### Custom domain later
+
+When ashtrayapparel.com moves to Cloudflare, add it to `wrangler.jsonc`:
+- `"vars": { "SITE_ORIGIN": "https://www.ashtrayapparel.com" }`, so links shared on social media point at the domain;
+- the domain under `routes` with `"custom_domain": true`.
+
+Don't set these only in the dashboard: each deploy replaces dashboard variables with what's in `wrangler.jsonc`.
 
 ## Design
 
