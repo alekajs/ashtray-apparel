@@ -5,6 +5,8 @@ Usage (from the repo root):
 
 Writes public/img/** (WebP at 480/960/1600 px wide, a 1200 px JPEG per sample for link previews,
 logo, favicons) and src/data/images.json (original pixel sizes, used for width/height attributes).
+Home-grid cut-outs: a transparent PNG next to a sample's first photo (01-*.png, made by the owner) is
+trimmed to the garment and saved as cutout-480/960.webp with transparency.
 Needs Pillow. Re-run only when photos change; the output is committed.
 """
 import json
@@ -19,7 +21,7 @@ SAMPLES = ["abstract-tee", "crawler", "kiss-tee", "basic-mocha", "basic-olive"]
 root = Path(__file__).resolve().parent.parent
 archive = Path(sys.argv[1] if len(sys.argv) > 1 else root.parent / "ashtray-apparel").resolve()
 public = root / "public" / "img"
-manifest = {"samples": {}, "pages": {}}
+manifest = {"samples": {}, "cutouts": {}, "pages": {}}
 
 
 def save_webp(im, path, width, quality=80):
@@ -43,6 +45,19 @@ for slug in SAMPLES:
             og.save(public / "samples" / slug / "share.jpg", "JPEG", quality=82, optimize=True, progressive=True)
         entries.append({"n": index, "w": im.width, "h": im.height})
     manifest["samples"][slug] = entries
+
+    cutouts = sorted((archive / "images" / "products" / slug).glob("01-*.png"))
+    if cutouts:
+        cut = Image.open(cutouts[0]).convert("RGBA")
+        box = cut.getchannel("A").point(lambda a: 255 if a > 8 else 0).getbbox()
+        margin = round(max(cut.size) * 0.01)
+        box = (max(box[0] - margin, 0), max(box[1] - margin, 0), min(box[2] + margin, cut.width), min(box[3] + margin, cut.height))
+        cut = cut.crop(box)
+        for width in (480, 960):
+            path = public / "samples" / slug / f"cutout-{width}.webp"
+            w = min(width, cut.width)
+            cut.resize((w, round(cut.height * w / cut.width)), Image.LANCZOS).save(path, "WEBP", quality=82, method=6)
+        manifest["cutouts"][slug] = {"w": cut.width, "h": cut.height}
 
 story = Image.open(archive / "images" / "pages" / "our-story" / "by-merc-2-ppl.webp").convert("RGB")
 for width in (480, 960):

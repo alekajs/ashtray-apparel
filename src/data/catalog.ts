@@ -29,6 +29,8 @@ export interface Sample {
   important?: string;
   fit: string[];
   figures: Figure[];
+  /** Garment photo with the background removed, used on the library grid. */
+  cutout?: { width: number; height: number };
 }
 
 const DELIVERY = [
@@ -57,8 +59,16 @@ const teeSpec = (gsm: number): [string, string][] => [
   ["FIT", "CROPPED / BOXY"],
 ];
 
-type Manifest = { samples: Record<string, { n: number; w: number; h: number }[]> };
+type Manifest = {
+  samples: Record<string, { n: number; w: number; h: number }[]>;
+  cutouts?: Record<string, { w: number; h: number }>;
+};
 const manifest = images as Manifest;
+
+function cutout(slug: string): Sample["cutout"] {
+  const entry = manifest.cutouts?.[slug];
+  return entry ? { width: entry.w, height: entry.h } : undefined;
+}
 
 function figures(slug: string, captions: string[]): Figure[] {
   const entries = manifest.samples[slug] ?? [];
@@ -76,26 +86,31 @@ export const SAMPLES: Sample[] = [
     slug: "abstract-tee", number: "01", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
     catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
     figures: figures("abstract-tee", ["FRONT", "WORN, RALPH"]),
+    cutout: cutout("abstract-tee"),
   },
   {
     slug: "crawler", number: "02", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
     catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
     figures: figures("crawler", ["FRONT", "WORN, RALPH"]),
+    cutout: cutout("crawler"),
   },
   {
     slug: "kiss-tee", number: "03", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
     catalogued: "2024-10-06", sizes: sizes(["S", "M", "L"], 0), spec: teeSpec(220), fit: TEE_FIT,
     figures: figures("kiss-tee", ["FRONT", "WORN, RALPH"]),
+    cutout: cutout("kiss-tee"),
   },
   {
     slug: "basic-mocha", number: "04", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-mocha", ["FRONT", "BACK", "SLEEVE", "WORN, RALPH", "WORN, ALICE"]),
+    cutout: cutout("basic-mocha"),
   },
   {
     slug: "basic-olive", number: "05", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-olive", ["FRONT", "BACK", "SLEEVE", "WORN, ALICE", "WORN, RALPH"]),
+    cutout: cutout("basic-olive"),
   },
 ];
 
@@ -115,6 +130,12 @@ export function imageUrl(sample: Sample, n: number, width: (typeof IMAGE_WIDTHS)
 
 export function imageSrcset(sample: Sample, n: number): string {
   return IMAGE_WIDTHS.map((width) => `${imageUrl(sample, n, width)} ${width}w`).join(", ");
+}
+
+export const CUTOUT_WIDTHS = [480, 960] as const;
+
+export function cutoutUrl(sample: Sample, width: (typeof CUTOUT_WIDTHS)[number]): string {
+  return `/img/samples/${sample.slug}/cutout-${width}.webp`;
 }
 
 export function shareImageUrl(sample: Sample): string {

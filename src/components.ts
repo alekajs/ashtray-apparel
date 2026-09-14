@@ -1,4 +1,4 @@
-import { imageSrcset, imageUrl, isSoldOut, type Sample } from "./data/catalog";
+import { CUTOUT_WIDTHS, cutoutUrl, imageSrcset, imageUrl, isSoldOut, type Sample } from "./data/catalog";
 import { SITE } from "./data/settings";
 import { html, type Html } from "./html";
 import { formatEur } from "./money";
@@ -15,12 +15,17 @@ export function priceTag(sample: Sample): Html {
 export function sampleTile(sample: Sample, index: number): Html {
   const first = sample.figures[0];
   const eager = index < 2;
+  const loading = eager ? html`fetchpriority="${index === 0 ? "high" : "auto"}"` : html`loading="lazy"`;
+  const sizes = "(min-width: 1200px) 18vw, (min-width: 768px) 30vw, 46vw";
+  const picture = sample.cutout
+    ? html`<span class="tile__img tile__img--cutout"><img src="${cutoutUrl(sample, 480)}"
+        srcset="${CUTOUT_WIDTHS.map((width) => `${cutoutUrl(sample, width)} ${width}w`).join(", ")}" sizes="${sizes}"
+        width="${sample.cutout.width}" height="${sample.cutout.height}" alt="" ${loading} decoding="async"></span>`
+    : html`<span class="tile__img"><img src="${imageUrl(sample, 1, 480)}" srcset="${imageSrcset(sample, 1)}" sizes="${sizes}"
+        width="${first?.width ?? 2000}" height="${first?.height ?? 2444}" alt="" ${loading} decoding="async"></span>`;
   return html`<li>
     <a class="tile${isSoldOut(sample) ? " tile--sold" : ""}" href="/sample/${sample.slug}">
-      <span class="tile__img"><img src="${imageUrl(sample, 1, 480)}" srcset="${imageSrcset(sample, 1)}"
-        sizes="(min-width: 1200px) 18vw, (min-width: 768px) 30vw, 46vw"
-        width="${first?.width ?? 2000}" height="${first?.height ?? 2444}"
-        alt="" ${eager ? html`fetchpriority="${index === 0 ? "high" : "auto"}"` : html`loading="lazy"`} decoding="async"></span>
+      ${picture}
       <span class="tile__cap"><span class="tile__name">${sample.name}<span class="visually-hidden">, ${sample.colour.toLowerCase()}</span></span>${priceTag(sample)}</span>
     </a>
   </li>`;

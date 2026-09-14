@@ -91,6 +91,28 @@
       }
     ]
   },
+  "cutouts": {
+    "abstract-tee": {
+      "w": 1992,
+      "h": 1587
+    },
+    "crawler": {
+      "w": 1996,
+      "h": 1631
+    },
+    "kiss-tee": {
+      "w": 1998,
+      "h": 1611
+    },
+    "basic-mocha": {
+      "w": 1857,
+      "h": 2434
+    },
+    "basic-olive": {
+      "w": 1917,
+      "h": 2414
+    }
+  },
   "pages": {
     "our-story": {
       "w": 2142,

@@ -597,6 +597,18 @@ main {
   transition: opacity 0.25s ease;
 }
 
+/* Cut-out garments float on the page, fitted inside the same 4:5 frame and standing on a shared line
+   just above the caption */
+.tile__img--cutout {
+  background: none;
+}
+
+.tile__img--cutout img {
+  padding: 10% 4% 4%;
+  object-fit: contain;
+  object-position: 50% 100%;
+}
+
 @media (hover: hover) {
   .tile:hover .tile__img img {
     opacity: 0.85;
