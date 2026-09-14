@@ -82,6 +82,6 @@ big = big.resize((round(big.width * 300 / big.height), 300), Image.LANCZOS)
 share.paste(big, ((1200 - big.width) // 2, (630 - big.height) // 2), big)
 share.save(brand / "share.jpg", "JPEG", quality=85, optimize=True)
 
-(root / "src" / "data" / "images.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+(root / "src" / "data" / "images.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
 total = sum(p.stat().st_size for p in (root / "public").rglob("*") if p.is_file() and p.suffix in {".webp", ".jpg", ".png", ".ico"})
 print(f"images written, {total / 1e6:.1f} MB")
