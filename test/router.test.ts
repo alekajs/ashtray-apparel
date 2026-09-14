@@ -228,6 +228,18 @@ describe("pages", () => {
     expect(jeans).not.toMatch(/BAGGY JEANS {2}|BAGGY JEANS in |library: \./);
   });
 
+  it("opens links to other websites in a new tab", async () => {
+    for (const path of ["/", "/sample/basic-mocha", "/cart", "/contact", "/menu", "/refund-policy", "/shipping-policy", "/our-story"]) {
+      const body = await (await get(path)).text();
+      const external = [...body.matchAll(/<a\b[^>]*href="https?:\/\/[^"]*"[^>]*>/g)].map((m) => m[0]);
+      expect(external.length).toBeGreaterThan(0);
+      for (const tag of external) {
+        expect(tag, `${path}: ${tag}`).toContain('target="_blank"');
+        expect(tag, `${path}: ${tag}`).toContain('rel="noopener"');
+      }
+    }
+  });
+
   it("rejects other methods on pages", async () => {
     expect((await get("/", { method: "POST" })).status).toBe(405);
   });

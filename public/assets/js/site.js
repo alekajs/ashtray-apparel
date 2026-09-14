@@ -82,6 +82,11 @@
       menu.close();
     };
     window.addEventListener("pagehide", closeForNavigation);
+    // Links that open in a new tab leave this page where it is: close the menu so it isn't still open on return.
+    menu.addEventListener("click", (event) => {
+      const link = event.target instanceof Element ? event.target.closest('a[target="_blank"]') : null;
+      if (link) setTimeout(() => menu.close(), 0);
+    });
     window.addEventListener("pageshow", (event) => {
       if (event.persisted) closeForNavigation();
     });

@@ -59,7 +59,7 @@ export function contactPage(origin: string, submitted?: ContactValues, problem?:
   const content = html`<div class="prose-page">
     <div class="prose-page__head">
       <h1 class="display display--xl">CONTACT${cursor()}</h1>
-      <p class="label">OR DM <a class="link" href="${SITE.instagram.url}" rel="noopener">${SITE.instagram.handle.toUpperCase()}&nbsp;↗</a></p>
+      <p class="label">OR DM <a class="link" href="${SITE.instagram.url}" target="_blank" rel="noopener">${SITE.instagram.handle.toUpperCase()}&nbsp;↗<span class="visually-hidden"> (opens in a new tab)</span></a></p>
     </div>
     <form class="contact" method="post" action="/contact">
       ${problem ? html`<p class="notice" role="alert">${problem}</p>` : ""}

@@ -46,7 +46,7 @@ export function cartPage(origin: string): string {
         <div class="summary__checkout">
           <button class="btn btn--primary" type="button" data-checkout>[ CHECKOUT ]</button>
           <p class="message message--center" role="status" aria-live="polite" data-checkout-message></p>
-          <p class="label label--faint summary__note">${SITE.checkoutOpen ? html`SECURE PAYMENT ON STRIPE · ` : ""}<a class="summary__dm" href="${SITE.instagram.url}" rel="noopener">OR DM&nbsp;${SITE.instagram.handle.toUpperCase()}</a></p>
+          <p class="label label--faint summary__note">${SITE.checkoutOpen ? html`SECURE PAYMENT ON STRIPE · ` : ""}<a class="summary__dm" href="${SITE.instagram.url}" target="_blank" rel="noopener">OR DM&nbsp;${SITE.instagram.handle.toUpperCase()}<span class="visually-hidden"> (opens in a new tab)</span></a></p>
           <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-cart-announce></p>
         </div>
       </aside>

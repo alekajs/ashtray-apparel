@@ -56,13 +56,13 @@ export function menuContent(currentPath: string, closeAction: Html): Html {
         <div class="menu__group">
           <p class="menu__group-title label">FOLLOW</p>
           <ul>
-            <li><a href="${SITE.instagram.url}" rel="noopener">INSTAGRAM ↗</a></li>
-            <li><a href="${SITE.tiktok.url}" rel="noopener">TIKTOK ↗</a></li>
+            <li><a href="${SITE.instagram.url}" target="_blank" rel="noopener">INSTAGRAM ↗<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+            <li><a href="${SITE.tiktok.url}" target="_blank" rel="noopener">TIKTOK ↗<span class="visually-hidden"> (opens in a new tab)</span></a></li>
           </ul>
         </div>
-        <a class="menu__studio" href="${SITE.studio.url}" rel="noopener">
+        <a class="menu__studio" href="${SITE.studio.url}" target="_blank" rel="noopener">
           <span class="label label--accent label--strong-accent">ASHTRAY STUDIO ↗</span>
-          <span class="menu__studio-text">build your own garment, from 10 units per style.</span>
+          <span class="menu__studio-text">build your own garment, from 10 units per style.</span><span class="visually-hidden"> (opens in a new tab)</span>
         </a>
       </div>
     </div>
@@ -73,9 +73,9 @@ export function footer(): Html {
   return html`<footer class="foot">
     <p class="foot__promo">${SITE.announcement.text} <strong>${SITE.announcement.code}</strong></p>
     <ul class="foot__links">
-      <li><a href="${SITE.instagram.url}" rel="noopener">INSTAGRAM</a></li>
-      <li><a href="${SITE.tiktok.url}" rel="noopener">TIKTOK</a></li>
-      <li><a class="foot__studio" href="${SITE.studio.url}" rel="noopener">ASHTRAY STUDIO ↗</a></li>
+      <li><a href="${SITE.instagram.url}" target="_blank" rel="noopener">INSTAGRAM<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+      <li><a href="${SITE.tiktok.url}" target="_blank" rel="noopener">TIKTOK<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+      <li><a class="foot__studio" href="${SITE.studio.url}" target="_blank" rel="noopener">ASHTRAY STUDIO ↗<span class="visually-hidden"> (opens in a new tab)</span></a></li>
     </ul>
   </footer>`;
 }
