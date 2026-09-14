@@ -656,12 +656,12 @@ main {
   background: var(--panel);
 }
 
-/* Sample number in the photo's bottom-left corner, just above the name; cut-outs leave room for it */
+/* Sample number in grey in the photo's bottom-left corner, just above the name; cut-outs leave room for it */
 .tile__num {
   position: absolute;
   bottom: 0;
   left: 0;
-  color: var(--ink);
+  color: var(--muted);
   font-size: 10px;
   line-height: 1;
   letter-spacing: 0.12em;
