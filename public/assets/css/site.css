@@ -591,10 +591,10 @@ main {
   background: var(--panel);
 }
 
-/* Sample number in the photo's top-left corner, lined up with the name below */
+/* Sample number in the photo's bottom-left corner, just above the name; cut-outs leave room for it */
 .tile__num {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   color: var(--ink);
   font-size: 10px;
@@ -621,7 +621,7 @@ main {
 }
 
 .tile__img--cutout img {
-  padding: 10% 4% 4%;
+  padding: 10% 4% calc(4% + 18px);
   object-fit: contain;
   object-position: 50% 100%;
 }
@@ -635,17 +635,19 @@ main {
   letter-spacing: 0.12em;
 }
 
-/* Grid prices are white (sale prices included); name and price turn purple together on hover or keyboard focus */
+/* Grid prices are white (sale prices included); number, name and price turn purple together on hover or keyboard focus */
 .tile .price--sale {
   color: var(--ink);
 }
 
+.tile:focus-visible .tile__num,
 .tile:focus-visible .tile__name,
 .tile:focus-visible .price {
   color: var(--accent-hi);
 }
 
 @media (hover: hover) {
+  .tile:hover .tile__num,
   .tile:hover .tile__name,
   .tile:hover .price {
     color: var(--accent-hi);
