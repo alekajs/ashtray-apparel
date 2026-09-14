@@ -13,7 +13,8 @@
 - **Look:** yeezy.com's quiet-grid mood (never copy its layout or details) plus ashtraystudio.eu's language turned black: Courier Prime, tracked uppercase labels, `[ BRACKETED ]` actions, dotted-leader spec rows, rulers (top everywhere; side ruler on desktop only), crop marks with "FIG. 01" captions.
 - **Colours:** `#070707`, `#FAFAF7`, `#A45DBB` (hover `#C191CF`).
 - **Minimal chrome on every page:** top bar `[ MENU ]` · logo · `[ CART n ]`, one footer line (promo + Instagram, TikTok, Ashtray Studio). The menu opens full screen.
-- **Grid:** `NAME [NN]` left, price right. Samples are numbered in the order they were made.
+- **Grid:** `NAME [NN]` left, price right, colourway underneath (added 2026-09-14 for the owner to judge). Samples are numbered in the order they were made.
+- **Domain (owner, 2026-09-14):** the main address is `https://ashtrayapparel.com` without www (`SITE_ORIGIN` in `wrangler.jsonc`). `www.` forwards to it in the Worker, and workers.dev stays on. Keep the "made in Riga" wording and the Our Story caption.
 - **Copy:** policies and product wording stay verbatim from the old shop. "All sales are final", no EU-rule changes, UK still shipped to (owner decision: change nothing there unless asked).
 - **Commerce:**
   - shipping zones in `src/data/shipping.ts`

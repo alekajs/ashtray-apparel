@@ -75,13 +75,19 @@ After switching, never use **Rollback** to a version from before the switch, bec
 
 Cloudflare installs the packages from `package-lock.json` before building.
 
-### Custom domain later
+### The domain: ashtrayapparel.com (no www)
 
-When ashtrayapparel.com moves to Cloudflare, add it to `wrangler.jsonc`:
-- `"vars": { "SITE_ORIGIN": "https://www.ashtrayapparel.com" }`, so links shared on social media point at the domain;
-- the domain under `routes` with `"custom_domain": true`.
+The main address is **https://ashtrayapparel.com**. `SITE_ORIGIN` in `wrangler.jsonc` sets it for canonical links, the sitemap and share previews. Keep it there and not in the dashboard: each deploy replaces dashboard variables with what's in `wrangler.jsonc`. `www.ashtrayapparel.com` forwards to it, old page addresses included, and the workers.dev address keeps working.
 
-Don't set these only in the dashboard: each deploy replaces dashboard variables with what's in `wrangler.jsonc`.
+To point the domain at the site (one time):
+
+1. **Cloudflare** → **Add a domain** → `ashtrayapparel.com`, Free plan.
+2. **Namecheap** → Domain List → **Manage** → **Nameservers** → **Custom DNS**. Enter the two nameservers Cloudflare shows, then wait until Cloudflare marks the domain **Active** (minutes to a few hours).
+3. **Cloudflare → DNS → Records**: delete the imported `www` CNAME (`ashtray.bigcartel.com`) and the root A record (`192.64.119.181`).
+4. **Workers & Pages → ashtray-apparel → Settings → Domains & Routes → Add → Custom Domain**: add `ashtrayapparel.com`, then add `www.ashtrayapparel.com` too, so the forwarding works.
+5. Open `https://www.ashtrayapparel.com/product/basic-mocha`: it should land on `https://ashtrayapparel.com/sample/basic-mocha`.
+
+Keep auto-renew on at Namecheap (renewal due 5 May 2027).
 
 ## Design
 

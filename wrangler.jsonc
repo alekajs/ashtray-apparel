@@ -9,6 +9,9 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
+  // The main address: canonical links, the sitemap and share previews use it, and www. forwards to it.
+  "vars": { "SITE_ORIGIN": "https://ashtrayapparel.com" },
+  // The workers.dev address keeps working as well.
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true }

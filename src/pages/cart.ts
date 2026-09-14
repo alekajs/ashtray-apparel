@@ -38,10 +38,10 @@ export function cartPage(origin: string): string {
           <p class="message" role="status" aria-live="polite" data-code-message></p>
         </form>
         <dl class="totals">
-          <div class="kv"><dt>SUBTOTAL</dt><dd data-subtotal>€0.00</dd></div>
-          <div class="kv kv--accent" data-discount-row hidden><dt data-discount-label>DISCOUNT</dt><dd data-discount>−€0.00</dd></div>
-          <div class="kv"><dt data-shipping-label>SHIPPING</dt><dd data-shipping>€0.00</dd></div>
-          <div class="totals__total"><dt>TOTAL</dt><dd data-total>€0.00</dd></div>
+          <div class="kv"><dt>SUBTOTAL</dt><dd data-subtotal>€0</dd></div>
+          <div class="kv kv--accent" data-discount-row hidden><dt data-discount-label>DISCOUNT</dt><dd data-discount>−€0</dd></div>
+          <div class="kv"><dt data-shipping-label>SHIPPING</dt><dd data-shipping>€0</dd></div>
+          <div class="totals__total"><dt>TOTAL</dt><dd data-total>€0</dd></div>
         </dl>
         <div class="summary__checkout">
           <button class="btn btn--primary" type="button" data-checkout>[ CHECKOUT ]</button>

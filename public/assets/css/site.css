@@ -628,13 +628,6 @@ main {
   }
 }
 
-/* 5 across from 1200px: tighter caption tracking until the columns are wide enough */
-@media (min-width: 1200px) and (max-width: 1379px) {
-  .tile__cap {
-    letter-spacing: 0.04em;
-  }
-}
-
 /* ---------------------------------------------------------------- sample page */
 
 .crumbs {

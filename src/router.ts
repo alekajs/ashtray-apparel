@@ -138,6 +138,17 @@ export async function handle(request: Request, env: Env): Promise<Response> {
   const path = url.pathname;
 
   const target = canonicalPath(path);
+
+  // www.<main domain> forwards to the main domain in one hop (old page addresses are mapped on the way).
+  const main = env.SITE_ORIGIN ? new URL(env.SITE_ORIGIN) : null;
+  if (main && url.hostname === `www.${main.hostname}`) {
+    const readOnly = method === "GET" || method === "HEAD";
+    const destination = new URL(`${target}${url.search}`, main.origin);
+    if (destination.origin === main.origin) {
+      return new Response(null, { status: readOnly ? 301 : 308, headers: { Location: destination.href } });
+    }
+  }
+
   if (target !== path && (method === "GET" || method === "HEAD")) {
     const destination = new URL(`${target}${url.search}`, url.origin);
     if (destination.origin === url.origin) {

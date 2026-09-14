@@ -8,10 +8,11 @@ const crawler = { sample: "crawler", size: "M", qty: 1 };
 
 describe("formatEur", () => {
   it("formats cents", () => {
-    expect(formatEur(5500)).toBe("€55.00");
+    expect(formatEur(5500)).toBe("€55");
+    expect(formatEur(250)).toBe("€2.50");
     expect(formatEur(320)).toBe("€3.20");
     expect(formatEur(-1050)).toBe("−€10.50");
-    expect(formatEur(0)).toBe("€0.00");
+    expect(formatEur(0)).toBe("€0");
   });
 });
 
@@ -38,7 +39,7 @@ describe("quote", () => {
   it("refuses FREAKYYAH under €70 of samples (shipping doesn't count)", () => {
     const q = quote({ items: [{ sample: "basic-mocha", size: "M", qty: 1 }], country: "DE", code: "FREAKYYAH" }, NOW);
     expect(q.discount).toBeNull();
-    expect(q.codeMessage).toBe("SPEND €70.00 ON SAMPLES TO USE FREAKYYAH.");
+    expect(q.codeMessage).toBe("SPEND €70 ON SAMPLES TO USE FREAKYYAH.");
     expect(q.totalCents).toBe(5500 + 3000);
   });
 

@@ -168,8 +168,37 @@ describe("pages", () => {
   });
 
   it("uses SITE_ORIGIN for canonical links when set", async () => {
-    const res = await handle(new Request("https://ashtray-apparel.example.workers.dev/"), { ...env, SITE_ORIGIN: "https://www.ashtrayapparel.com" });
-    expect(await res.text()).toContain('<link rel="canonical" href="https://www.ashtrayapparel.com/">');
+    const res = await handle(new Request("https://ashtray-apparel.example.workers.dev/"), { ...env, SITE_ORIGIN: "https://ashtrayapparel.com" });
+    expect(await res.text()).toContain('<link rel="canonical" href="https://ashtrayapparel.com/">');
+  });
+
+  it("forwards www to the main domain in one hop", async () => {
+    const site = { ...env, SITE_ORIGIN: "https://ashtrayapparel.com" };
+    const home = await handle(new Request("https://www.ashtrayapparel.com/?utm_source=instagram"), site);
+    expect(home.status).toBe(301);
+    expect(home.headers.get("Location")).toBe("https://ashtrayapparel.com/?utm_source=instagram");
+    const old = await handle(new Request("https://www.ashtrayapparel.com/product/basic-mocha"), site);
+    expect(old.headers.get("Location")).toBe("https://ashtrayapparel.com/sample/basic-mocha");
+    const sneaky = await handle(new Request("https://www.ashtrayapparel.com//evil.example/x"), site);
+    expect(new URL(sneaky.headers.get("Location") ?? "").hostname).toBe("ashtrayapparel.com");
+    const post = await handle(new Request("https://www.ashtrayapparel.com/contact", { method: "POST", body: "a=1" }), site);
+    expect(post.status).toBe(308);
+    expect(post.headers.get("Location")).toBe("https://ashtrayapparel.com/contact");
+    for (const path of ["//evil.example/x", String.raw`/\evil.example/x`]) {
+      const sneakyPost = await handle(new Request(`https://www.ashtrayapparel.com${path}`, { method: "POST", body: "a=1" }), site);
+      expect(new URL(sneakyPost.headers.get("Location") ?? "").hostname).toBe("ashtrayapparel.com");
+    }
+    const direct = await handle(new Request("https://ashtrayapparel.com/"), site);
+    expect(direct.status).toBe(200);
+  });
+
+  it("labels the library grid with the name and a whole-euro price only", async () => {
+    const body = await (await get("/")).text();
+    expect(body).not.toContain("tile__colour");
+    expect(body).not.toMatch(/tile__name">[^<]*<span class="num">/);
+    expect(body).toContain(">€15</span>");
+    expect(body).toContain(">€55</span>");
+    expect(body).not.toContain("€15.00");
   });
 
   it("rejects other methods on pages", async () => {
