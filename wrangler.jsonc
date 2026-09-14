@@ -1,0 +1,15 @@
+{
+  // ashtrayapparel.com: the Ashtray sample library. Pages are rendered by src/index.ts;
+  // files in public/ (CSS, JS, fonts, images) are served directly as static assets.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ashtray-apparel",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-13",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true }
+}
