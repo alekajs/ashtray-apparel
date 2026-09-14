@@ -4,6 +4,8 @@ export const SITE = {
   instagram: { url: "https://www.instagram.com/ashtrayapparel/", handle: "@ashtrayapparel" },
   tiktok: { url: "https://www.tiktok.com/@ashtrayapparel" },
   studio: { url: "https://ashtraystudio.eu/", label: "ASHTRAYSTUDIO.EU" },
+  /** Where [ BUILD YOUR OWN ] on sample pages leads: the studio's enquiry form. */
+  buildYourOwnUrl: "https://tally.so/r/mJZLYX",
   /** Short note above the library grid on the home page. */
   libraryIntro: "These samples are from our studio and can be pre-ordered. If enough pre-orders go through, you receive the piece. If not, you're refunded.",
   /** Checkout stays closed until Stripe is connected (next build step). */

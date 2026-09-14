@@ -1,4 +1,4 @@
-import { SAMPLES, fullName, imageUrl, isSoldOut, type Sample } from "./data/catalog";
+import { SAMPLES, fullName, imageUrl, isSoldOut, sizeLabel, type Sample } from "./data/catalog";
 import { INFO_PAGES } from "./data/pages";
 import { SITE } from "./data/settings";
 
@@ -44,7 +44,7 @@ export function sampleLd(origin: string, sample: Sample): object[] {
       offers: sample.sizes.map((size) => ({
         "@type": "Offer",
         sku: `ASH-S${sample.number}-${size.code}`,
-        name: `${fullName(sample)} (${size.code})`,
+        name: `${fullName(sample)} (${sizeLabel(size.code)})`,
         price: (sample.priceCents / 100).toFixed(2),
         priceCurrency: "EUR",
         url,

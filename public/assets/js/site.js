@@ -128,14 +128,15 @@
       const stock = Number(choice.dataset.stock || "0");
       const items = read();
       const existing = items.find((item) => item.sample === sample && item.size === size);
+      const which = size === "OS" ? "THIS" : `SIZE ${size}`;
       if ((existing ? existing.qty : 0) >= stock) {
-        setStatus(`SIZE ${size} IS ALREADY IN YOUR CART.`, true);
+        setStatus(`${which} IS ALREADY IN YOUR CART.`, true);
         return;
       }
       if (existing) existing.qty += 1;
       else items.push({ sample, size, qty: 1 });
       write(items);
-      setStatus(`ADDED SIZE ${size}.`, true);
+      setStatus(size === "OS" ? "ADDED TO YOUR CART." : `ADDED SIZE ${size}.`, true);
       if (button) {
         button.textContent = "[ ADDED ]";
         clearTimeout(timer);

@@ -66,6 +66,8 @@
 
   const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "S"}`;
   const keyOf = (line) => `${line.sample}|${line.size}`;
+  // "OS" is a one-size item such as a sticker.
+  const sizeText = (size) => (size === "OS" ? "ONE SIZE" : `SIZE ${size}`);
   const setText = (node, text) => {
     if (node.textContent !== text) node.textContent = text;
   };
@@ -128,7 +130,7 @@
     name.append(line.name || "UNKNOWN SAMPLE");
     if (line.number) name.append(" ", el("span", "num", `[${line.number}]`));
     const meta = el("span", "label", line.colour || "");
-    meta.append(el("span", "row__size-inline", `${line.colour ? " · " : ""}SIZE ${line.size}`));
+    meta.append(el("span", "row__size-inline", `${line.colour ? " · " : ""}${sizeText(line.size)}`));
     info.append(name, meta);
     const note = stateNote(line);
     if (note) info.append(el("span", "label label--accent", note));
@@ -136,11 +138,11 @@
     const actions = el("div", "row__actions");
     if (line.maxQty > 1 && line.qty > 0) {
       const select = el("select", "select");
-      select.setAttribute("aria-label", `Quantity of ${title}, size ${line.size}`);
+      select.setAttribute("aria-label", `Quantity of ${title}, ${sizeText(line.size).toLowerCase()}`);
       select.dataset.focus = "qty";
       for (let n = 1; n <= Math.min(line.maxQty, 10); n += 1) select.append(new Option(String(n), String(n), false, n === line.qty));
       select.addEventListener("change", () => {
-        pendingAnnouncement = `${title}, size ${line.size}: quantity ${select.value}.`;
+        pendingAnnouncement = `${title}, ${sizeText(line.size).toLowerCase()}: quantity ${select.value}.`;
         updateItem(line, Number(select.value), { key: keyOf(line), kind: "qty", index });
       });
       actions.append(select);
@@ -152,15 +154,15 @@
     const remove = el("button", "textbutton", "REMOVE");
     remove.type = "button";
     remove.dataset.focus = "remove";
-    remove.setAttribute("aria-label", `Remove ${title}, size ${line.size}`);
+    remove.setAttribute("aria-label", `Remove ${title}, ${sizeText(line.size).toLowerCase()}`);
     remove.addEventListener("click", () => {
-      pendingAnnouncement = `Removed ${title}, size ${line.size}.`;
+      pendingAnnouncement = `Removed ${title}, ${sizeText(line.size).toLowerCase()}.`;
       updateItem(line, 0, { key: keyOf(line), kind: "remove", index });
     });
     actions.append(remove);
 
     const lineTotal = line.state === "sold_out" || line.state === "unavailable" ? "—" : eur(line.lineCents);
-    row.append(info, el("span", "row__size", line.size), actions, el("span", "row__total", lineTotal));
+    row.append(info, el("span", "row__size", line.size === "OS" ? "ONE SIZE" : line.size), actions, el("span", "row__total", lineTotal));
     return row;
   }
 

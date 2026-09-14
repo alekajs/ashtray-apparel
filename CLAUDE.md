@@ -22,6 +22,9 @@
   - four discount codes in `src/data/discounts.ts` (percentages apply to samples only, never shipping)
   - stock 1 per size, KISS TEE 0
   - the seven samples added 2026-09-14 (the `draft()` entries, folder names as slugs) are placeholders: €50, S/M/L, no spec or fit notes, one cut-out photo; names come from the folder names until the owner supplies real ones
+  - categories (owner, 2026-09-14): `[ UPPER ] [ LOWER ] [ ACCESSORIES ]` on the right of the home note, styled like `[ MENU ]`; `/?category=<key>` filters the grid; each sample has `category` in catalog.ts
+  - STICKERS [13] (accessories, one size `OS` shown as ONE SIZE, placeholder €50) sits last
+  - `[ BUILD YOUR OWN ]` on sample pages opens the studio's Tally form (`SITE.buildYourOwnUrl`); links to other websites open in a new tab
   - contact and order emails later go to ralfs@ashtraystudio.eu
 
 ## Rules

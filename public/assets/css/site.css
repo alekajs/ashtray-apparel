@@ -554,17 +554,66 @@ main {
   }
 }
 
-/* Short pre-order note above the grid */
+/* Above the grid: the pre-order note on the left, category links on the right */
+.library__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
 .library__intro {
   max-width: 56ch;
-  margin-bottom: 28px;
   line-height: 1.7;
 }
 
+/* Same look as [ MENU ] in the top bar; the selected category is purple */
+.library__cats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 20px;
+}
+
+.library__cat {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+
+.library__cat[aria-current] {
+  color: var(--accent);
+}
+
+.library__empty {
+  padding: 48px 0 96px;
+}
+
+@media (min-width: 768px) {
+  .library__head {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .library__cats {
+    flex-shrink: 0;
+    gap: 0 28px;
+  }
+}
+
 @media (min-width: 1024px) {
+  .library__head {
+    margin-bottom: 28px;
+  }
+
   .library__intro {
     max-width: 90ch;
-    margin-bottom: 36px;
   }
 }
 

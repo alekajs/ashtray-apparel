@@ -202,7 +202,7 @@ export async function handle(request: Request, env: Env): Promise<Response> {
     return new Response("Method not allowed", { status: 405, headers: securityHeaders(new Headers({ Allow: "GET, HEAD" })) });
   }
 
-  if (path === "/") return htmlResponse(homePage(origin));
+  if (path === "/") return htmlResponse(homePage(origin, url.searchParams.get("category")));
   if (path === "/cart") return htmlResponse(cartPage(origin));
   if (path === "/menu") return htmlResponse(menuPage(origin));
   if (path === "/our-story") return htmlResponse(ourStoryPage(origin));

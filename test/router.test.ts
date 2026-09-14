@@ -79,6 +79,32 @@ describe("pages", () => {
     expect(body).toContain("If enough pre-orders go through, you receive the piece. If not, you&#39;re refunded.");
   });
 
+  it("filters the library by category, and ignores unknown categories", async () => {
+    const all = await (await get("/")).text();
+    for (const label of ["[ UPPER ]", "[ LOWER ]", "[ ACCESSORIES ]"]) expect(all).toContain(label);
+    expect(all).not.toContain("aria-current=\"true\" title=\"Show all samples\"");
+    const lower = await (await get("/?category=lower")).text();
+    expect(lower).toContain('href="/sample/baggy-jeans"');
+    expect(lower).not.toContain('href="/sample/basic-mocha"');
+    expect(lower).toMatch(/<a class="library__cat" href="\/" aria-current="true"[^>]*>\[ LOWER \]<\/a>/);
+    const upper = await (await get("/?category=upper")).text();
+    expect((upper.match(/<a class="tile[ "]/g) ?? []).length).toBe(SAMPLES.filter((s) => s.category === "upper").length);
+    expect(upper).not.toContain('href="/sample/baggy-jeans"');
+    const accessories = await (await get("/?category=accessories")).text();
+    expect(accessories).toContain('href="/sample/stickers"');
+    expect((accessories.match(/<a class="tile[ "]/g) ?? []).length).toBe(1);
+    const unknown = await (await get("/?category=%3Cscript%3E")).text();
+    expect((unknown.match(/<a class="tile[ "]/g) ?? []).length).toBe(SAMPLES.length);
+    expect(unknown).not.toContain("<script>");
+  });
+
+  it("sells one-size items like stickers with a pre-selected ONE SIZE choice, last on the grid", async () => {
+    const body = await (await get("/sample/stickers")).text();
+    expect(body).toMatch(/<input type="radio" name="size" value="OS" data-stock="1" checked required><span>ONE SIZE/);
+    const home = await (await get("/")).text();
+    expect(home.lastIndexOf('<a class="tile')).toBe(home.indexOf('<a class="tile" href="/sample/stickers"'));
+  });
+
   it("shows sold-out samples without an add button", async () => {
     const body = await (await get("/sample/kiss-tee")).text();
     expect(body).toContain("[ SOLD OUT ]");
@@ -226,6 +252,12 @@ describe("pages", () => {
     const jeans = await (await get("/sample/baggy-jeans")).text();
     expect(jeans).toContain("<title>BAGGY JEANS [05] | Ashtray</title>");
     expect(jeans).not.toMatch(/BAGGY JEANS {2}|BAGGY JEANS in |library: \./);
+  });
+
+  it("sends [ BUILD YOUR OWN ] on sample pages to the studio's Tally form", async () => {
+    const body = await (await get("/sample/molly-navy")).text();
+    expect(body).toMatch(/<a class="btn btn--ghost" href="https:\/\/tally\.so\/r\/mJZLYX" target="_blank" rel="noopener">\[ BUILD YOUR OWN \]/);
+    expect(body).toContain('href="https://ashtraystudio.eu/" target="_blank" rel="noopener">ASHTRAYSTUDIO.EU →');
   });
 
   it("opens links to other websites in a new tab", async () => {

@@ -2,7 +2,13 @@
 // numbers follow the grid order. Stock: 1 per size that was buyable, 0 for KISS TEE (owner decision).
 import images from "./images.json";
 
-export type SizeCode = "S" | "M" | "L" | "XL";
+/** "OS" is one size (e.g. stickers). */
+export type SizeCode = "S" | "M" | "L" | "XL" | "OS";
+
+/** What visitors see for a size: "ONE SIZE" for one-size items, otherwise the code. */
+export function sizeLabel(code: string): string {
+  return code === "OS" ? "ONE SIZE" : code;
+}
 
 export interface Size {
   code: SizeCode;
@@ -16,8 +22,18 @@ export interface Figure {
   height: number;
 }
 
+export const CATEGORIES = [
+  { key: "upper", label: "UPPER" },
+  { key: "lower", label: "LOWER" },
+  { key: "accessories", label: "ACCESSORIES" },
+] as const;
+
+export type Category = (typeof CATEGORIES)[number]["key"];
+
 export interface Sample {
   slug: string;
+  /** Library filter the sample appears under. */
+  category: Category;
   number: string;
   name: string;
   colour: string;
@@ -83,9 +99,9 @@ function figures(slug: string, captions: string[]): Figure[] {
 const sizes = (codes: SizeCode[], stock: number): Size[] => codes.map((code) => ({ code, stock }));
 
 /** A newly added sample with no description yet: placeholder price and sizes, one cut-out photo. */
-const draft = (slug: string, number: string, name: string, colour = ""): Sample => ({
-  slug, number, name, colour, priceCents: 5000, onSale: false,
-  sizes: sizes(["S", "M", "L"], 1), spec: [], fit: [],
+const draft = (slug: string, number: string, name: string, colour = "", category: Category = "upper", codes: SizeCode[] = ["S", "M", "L"]): Sample => ({
+  slug, category, number, name, colour, priceCents: 5000, onSale: false,
+  sizes: sizes(codes, 1), spec: [], fit: [],
   figures: figures(slug, ["FLAT"]),
   cutout: cutout(slug),
 });
@@ -94,42 +110,43 @@ const draft = (slug: string, number: string, name: string, colour = ""): Sample 
 // draft(): added 2026-09-14 with placeholder price, sizes and names until the owner writes the descriptions.
 export const SAMPLES: Sample[] = [
   {
-    slug: "basic-mocha", number: "01", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
+    slug: "basic-mocha", category: "upper", number: "01", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-mocha", ["FRONT", "BACK", "SLEEVE", "WORN, RALPH", "WORN, ALICE"]),
     cutout: cutout("basic-mocha"),
   },
   {
-    slug: "basic-olive", number: "02", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
+    slug: "basic-olive", category: "upper", number: "02", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-olive", ["FRONT", "BACK", "SLEEVE", "WORN, ALICE", "WORN, RALPH"]),
     cutout: cutout("basic-olive"),
   },
   draft("molly-navy", "03", "MOLLY", "NAVY"),
   draft("molly-brown", "04", "MOLLY", "BROWN"),
-  draft("baggy-jeans", "05", "BAGGY JEANS"),
+  draft("baggy-jeans", "05", "BAGGY JEANS", "", "lower"),
   draft("cyber-waffle-blue", "06", "CYBER WAFFLE", "BLUE"),
   draft("cyber-tee-black", "07", "CYBER TEE", "BLACK"),
   draft("cyber-tee-red", "08", "CYBER TEE", "RED"),
   draft("chromatics-hoodie", "09", "CHROMATICS HOODIE"),
   {
-    slug: "abstract-tee", number: "10", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
+    slug: "abstract-tee", category: "upper", number: "10", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
     catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
     figures: figures("abstract-tee", ["FRONT", "WORN, RALPH"]),
     cutout: cutout("abstract-tee"),
   },
   {
-    slug: "crawler", number: "11", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
+    slug: "crawler", category: "upper", number: "11", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
     catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
     figures: figures("crawler", ["FRONT", "WORN, RALPH"]),
     cutout: cutout("crawler"),
   },
   {
-    slug: "kiss-tee", number: "12", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
+    slug: "kiss-tee", category: "upper", number: "12", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
     catalogued: "2024-10-06", sizes: sizes(["S", "M", "L"], 0), spec: teeSpec(220), fit: TEE_FIT,
     figures: figures("kiss-tee", ["FRONT", "WORN, RALPH"]),
     cutout: cutout("kiss-tee"),
   },
+  draft("stickers", "13", "STICKERS", "", "accessories", ["OS"]),
 ];
 
 /** "CYBER TEE RED", or just the name when there's no colour. */

@@ -1,5 +1,5 @@
 import { cursor, priceTag, studioBox } from "../components";
-import { DELIVERY_NOTES, FINAL_NOTE, formatCatalogued, fullName, imageSrcset, imageUrl, isSoldOut, shareImageUrl, type Sample } from "../data/catalog";
+import { DELIVERY_NOTES, FINAL_NOTE, formatCatalogued, fullName, imageSrcset, imageUrl, isSoldOut, shareImageUrl, sizeLabel, type Sample } from "../data/catalog";
 import { html } from "../html";
 import { document } from "../layout";
 import { formatEur } from "../money";
@@ -32,13 +32,14 @@ function gallery(sample: Sample) {
 
 function buyForm(sample: Sample) {
   const soldOut = isSoldOut(sample);
+  const onlyOne = sample.sizes.length === 1;
   return html`<form class="buy" data-add-to-cart data-sample="${sample.slug}" action="/cart" method="get">
     <fieldset class="sizes">
       <legend class="visually-hidden">Size</legend>
       <div class="sizes__head" aria-hidden="true"><span class="label">SIZE</span><span class="label label--faint">1 PIECE PER SIZE</span></div>
       <div class="chips">
         ${sample.sizes.map(
-          (size) => html`<label class="chip"><input type="radio" name="size" value="${size.code}" data-stock="${size.stock}"${size.stock <= 0 ? html` disabled` : ""} required><span>${size.code}<span class="visually-hidden">${size.stock <= 0 ? ", sold out" : ""}</span></span></label>`,
+          (size) => html`<label class="chip"><input type="radio" name="size" value="${size.code}" data-stock="${size.stock}"${size.stock <= 0 ? html` disabled` : onlyOne ? html` checked` : ""} required><span>${sizeLabel(size.code)}<span class="visually-hidden">${size.stock <= 0 ? ", sold out" : ""}</span></span></label>`,
         )}
       </div>
     </fieldset>

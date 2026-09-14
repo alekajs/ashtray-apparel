@@ -20,6 +20,7 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 - **Discount codes:** FREAKYYAH (15% off €70+ of samples), SWAGG10 (10%), EQUE15 (15%, 1 use left), FREESWAGG (free shipping in Latvia).
 - **Stock:** 1 per size; KISS TEE is sold out.
 - **Order:** the library shows samples in the order they're listed in `src/data/catalog.ts`, and the numbers follow that order.
+- **Categories:** UPPER, LOWER and ACCESSORIES filter the library (`/?category=upper`). Each sample's `category` is set in `src/data/catalog.ts`. One-size items (like stickers) use size `OS`, shown as "ONE SIZE".
 - **The seven samples added 14 Sept 2026** (Molly ×2, baggy jeans, cyber waffle, cyber tee ×2, Chromatics hoodie) have a placeholder €50 price, sizes S/M/L and no description yet.
 - **Old links still work:** `/product/basic-mocha`, `/products` and similar old addresses redirect to the new ones.
 
@@ -34,7 +35,7 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 | Samples: names, prices, sizes, stock, spec sheets | `src/data/catalog.ts` |
 | Shipping zones and countries | `src/data/shipping.ts` |
 | Discount codes | `src/data/discounts.ts` |
-| Promo line, social links, studio link, notices | `src/data/settings.ts` |
+| Promo line, social links, studio link, the BUILD YOUR OWN form link, the pre-order note, notices | `src/data/settings.ts` |
 | Our Story and policy wording | `src/data/pages.ts` |
 | Look and layout | `public/assets/css/site.css` |
 | Photos | originals in the archive repo, then run `python scripts/build-images.py ../ashtray-apparel` |

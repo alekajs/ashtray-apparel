@@ -37,7 +37,7 @@ export function studioBox(): Html {
     <p class="label label--accent">MADE AT ASHTRAY STUDIO</p>
     <p class="studio__text">like this piece? we build your own garment from scratch: fit, fabric, weight, labels. from 10 units per style.</p>
     <div class="studio__actions">
-      <a class="btn btn--ghost" href="${SITE.studio.url}" target="_blank" rel="noopener">[ BUILD YOUR OWN ]<span class="visually-hidden"> (opens in a new tab)</span></a>
+      <a class="btn btn--ghost" href="${SITE.buildYourOwnUrl}" target="_blank" rel="noopener">[ BUILD YOUR OWN ]<span class="visually-hidden"> (opens in a new tab)</span></a>
       <a class="link" href="${SITE.studio.url}" target="_blank" rel="noopener">${SITE.studio.label} →<span class="visually-hidden"> (opens in a new tab)</span></a>
     </div>
   </aside>`;
