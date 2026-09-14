@@ -220,11 +220,11 @@ describe("pages", () => {
     const res = await get("/sample/cyber-tee-red");
     expect(res.status).toBe(200);
     const body = await res.text();
-    expect(body).toContain("<title>CYBER TEE RED [09] | Ashtray</title>");
+    expect(body).toContain("<title>CYBER TEE RED [08] | Ashtray</title>");
     expect(body).not.toContain("SPEC SHEET");
     expect(body).toContain("€50");
     const jeans = await (await get("/sample/baggy-jeans")).text();
-    expect(jeans).toContain("<title>BAGGY JEANS [06] | Ashtray</title>");
+    expect(jeans).toContain("<title>BAGGY JEANS [05] | Ashtray</title>");
     expect(jeans).not.toMatch(/BAGGY JEANS {2}|BAGGY JEANS in |library: \./);
   });
 

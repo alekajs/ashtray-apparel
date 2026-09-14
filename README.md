@@ -19,7 +19,8 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 - **Shipping:** Omniva, the old Big Cartel rates. Latvia €2.50 + €0.70 per extra item; Estonia/Lithuania €5.20 + €0.80; Finland €12 + €2; rest of Europe €30 + €5.
 - **Discount codes:** FREAKYYAH (15% off €70+ of samples), SWAGG10 (10%), EQUE15 (15%, 1 use left), FREESWAGG (free shipping in Latvia).
 - **Stock:** 1 per size; KISS TEE is sold out.
-- **Samples [06]–[12]** (added 14 Sept 2026) have a placeholder €50 price, sizes S/M/L and no description yet.
+- **Order:** the library shows samples in the order they're listed in `src/data/catalog.ts`, and the numbers follow that order.
+- **The seven samples added 14 Sept 2026** (Molly ×2, baggy jeans, cyber waffle, cyber tee ×2, Chromatics hoodie) have a placeholder €50 price, sizes S/M/L and no description yet.
 - **Old links still work:** `/product/basic-mocha`, `/products` and similar old addresses redirect to the new ones.
 
 **Not connected yet (next step):**

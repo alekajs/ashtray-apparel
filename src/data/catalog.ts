@@ -1,5 +1,5 @@
 // The sample library. Copy comes verbatim from the old shop's product descriptions (archive PRODUCTS.md);
-// numbers follow the order the samples were made. Stock: 1 per size that was buyable, 0 for KISS TEE (owner decision).
+// numbers follow the grid order. Stock: 1 per size that was buyable, 0 for KISS TEE (owner decision).
 import images from "./images.json";
 
 export type SizeCode = "S" | "M" | "L" | "XL";
@@ -90,45 +90,46 @@ const draft = (slug: string, number: string, name: string, colour = ""): Sample 
   cutout: cutout(slug),
 });
 
+// Listed in the order the owner set for the library grid (2026-09-14); numbers follow this order.
+// draft(): added 2026-09-14 with placeholder price, sizes and names until the owner writes the descriptions.
 export const SAMPLES: Sample[] = [
   {
-    slug: "abstract-tee", number: "01", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
-    catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
-    figures: figures("abstract-tee", ["FRONT", "WORN, RALPH"]),
-    cutout: cutout("abstract-tee"),
-  },
-  {
-    slug: "crawler", number: "02", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
-    catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
-    figures: figures("crawler", ["FRONT", "WORN, RALPH"]),
-    cutout: cutout("crawler"),
-  },
-  {
-    slug: "kiss-tee", number: "03", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
-    catalogued: "2024-10-06", sizes: sizes(["S", "M", "L"], 0), spec: teeSpec(220), fit: TEE_FIT,
-    figures: figures("kiss-tee", ["FRONT", "WORN, RALPH"]),
-    cutout: cutout("kiss-tee"),
-  },
-  {
-    slug: "basic-mocha", number: "04", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
+    slug: "basic-mocha", number: "01", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-mocha", ["FRONT", "BACK", "SLEEVE", "WORN, RALPH", "WORN, ALICE"]),
     cutout: cutout("basic-mocha"),
   },
   {
-    slug: "basic-olive", number: "05", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
+    slug: "basic-olive", number: "02", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-olive", ["FRONT", "BACK", "SLEEVE", "WORN, ALICE", "WORN, RALPH"]),
     cutout: cutout("basic-olive"),
   },
-  // Added 2026-09-14. Price, sizes and names are placeholders until the owner writes the descriptions.
-  draft("baggy-jeans", "06", "BAGGY JEANS"),
-  draft("chromatics-hoodie", "07", "CHROMATICS HOODIE"),
-  draft("cyber-tee-black", "08", "CYBER TEE", "BLACK"),
-  draft("cyber-tee-red", "09", "CYBER TEE", "RED"),
-  draft("cyber-waffle-blue", "10", "CYBER WAFFLE", "BLUE"),
-  draft("molly-brown", "11", "MOLLY", "BROWN"),
-  draft("molly-navy", "12", "MOLLY", "NAVY"),
+  draft("molly-navy", "03", "MOLLY", "NAVY"),
+  draft("molly-brown", "04", "MOLLY", "BROWN"),
+  draft("baggy-jeans", "05", "BAGGY JEANS"),
+  draft("cyber-waffle-blue", "06", "CYBER WAFFLE", "BLUE"),
+  draft("cyber-tee-black", "07", "CYBER TEE", "BLACK"),
+  draft("cyber-tee-red", "08", "CYBER TEE", "RED"),
+  draft("chromatics-hoodie", "09", "CHROMATICS HOODIE"),
+  {
+    slug: "abstract-tee", number: "10", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
+    catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
+    figures: figures("abstract-tee", ["FRONT", "WORN, RALPH"]),
+    cutout: cutout("abstract-tee"),
+  },
+  {
+    slug: "crawler", number: "11", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
+    catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
+    figures: figures("crawler", ["FRONT", "WORN, RALPH"]),
+    cutout: cutout("crawler"),
+  },
+  {
+    slug: "kiss-tee", number: "12", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
+    catalogued: "2024-10-06", sizes: sizes(["S", "M", "L"], 0), spec: teeSpec(220), fit: TEE_FIT,
+    figures: figures("kiss-tee", ["FRONT", "WORN, RALPH"]),
+    cutout: cutout("kiss-tee"),
+  },
 ];
 
 /** "CYBER TEE RED", or just the name when there's no colour. */
