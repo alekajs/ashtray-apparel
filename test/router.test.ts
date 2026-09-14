@@ -75,6 +75,8 @@ describe("pages", () => {
     expect(positions.every((p) => p > 0)).toBe(true);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
     expect(body).toContain("SOLD OUT");
+    expect(body.indexOf('class="library__intro label"')).toBeLessThan(body.indexOf('class="grid"'));
+    expect(body).toContain("If enough pre-orders go through, you receive the piece. If not, you&#39;re refunded.");
   });
 
   it("shows sold-out samples without an add button", async () => {
