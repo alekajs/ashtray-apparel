@@ -608,11 +608,6 @@ main {
   object-position: 50% 100%;
 }
 
-/* Photos don't change on hover; sold-out samples stay faded */
-.tile--sold .tile__img img {
-  opacity: 0.5;
-}
-
 .tile__cap {
   display: flex;
   align-items: baseline;
