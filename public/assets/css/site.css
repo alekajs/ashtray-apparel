@@ -591,12 +591,12 @@ main {
   background: var(--panel);
 }
 
-/* Sample number in the photo's top-right corner, lined up with the price below */
+/* Sample number in the photo's top-left corner, lined up with the name below */
 .tile__num {
   position: absolute;
   top: 0;
-  right: 0;
-  color: var(--accent);
+  left: 0;
+  color: var(--ink);
   font-size: 10px;
   line-height: 1;
   letter-spacing: 0.12em;
