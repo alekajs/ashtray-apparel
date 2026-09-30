@@ -6,7 +6,7 @@ export interface InfoPage { slug: string; title: string; html: string }
 
 export const OUR_STORY = {
   title: "Our Story",
-  paragraphs: ["Our main work is Ashtray Studio, we help brands bring their clothing to life. But we also make stuff for ourselves.", "Ashtray Apparel is that side of things. We experiment, have fun. Everything is made in small quantities or 1 piece."],
+  paragraphs: ["our main work is Ashtray Studio, we help brands bring their clothing to life. but we also make stuff for ourselves.", "Ashtray Apparel is that side of things. we experiment, have fun. everything is made in small quantities or 1 piece."],
 };
 
 export const INFO_PAGES: InfoPage[] = [

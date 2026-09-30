@@ -138,8 +138,8 @@ describe("pages", () => {
 
   it("tells Our Story in the new words, without a photo caption", async () => {
     const body = await (await get("/our-story")).text();
-    expect(body).toContain("<p>Our main work is Ashtray Studio, we help brands bring their clothing to life. But we also make stuff for ourselves.</p>");
-    expect(body).toContain("<p>Ashtray Apparel is that side of things. We experiment, have fun. Everything is made in small quantities or 1 piece.</p>");
+    expect(body).toContain("<p>our main work is Ashtray Studio, we help brands bring their clothing to life. but we also make stuff for ourselves.</p>");
+    expect(body).toContain("<p>Ashtray Apparel is that side of things. we experiment, have fun. everything is made in small quantities or 1 piece.</p>");
     expect(body).not.toContain("THE TWO OF US");
     expect(body).not.toContain("random evening");
   });
