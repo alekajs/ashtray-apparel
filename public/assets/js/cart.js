@@ -213,7 +213,8 @@
     setText(shippingLabel, quote.units ? `SHIPPING [${quote.country} · ${plural(quote.units, "ITEM")}]` : "SHIPPING");
     setText(shipping, quote.shipping ? eur(quote.shipping.cents) : "—");
     if (quote.shipping) {
-      delivery.replaceChildren("OMNIVA WITH TRACKING · ", el("span", "nowrap", quote.shipping.delivery));
+      // No delivery time: pre-orders ship once they're made (owner, 2026-09-30).
+      delivery.replaceChildren("OMNIVA WITH TRACKING");
     } else {
       delivery.replaceChildren("WE DON'T SHIP TO THAT COUNTRY YET.");
     }
@@ -229,7 +230,7 @@
     if (pendingAnnouncement || announceQuote || codeSubmitted) {
       const codeText = codeSubmitted ? (quote.discount ? `Code ${quote.discount.code} applied.` : (quote.codeMessage || "")) : "";
       const where = quote.units && quote.shipping
-        ? `Shipping to ${titleCase(quote.countryName)} ${eur(quote.shipping.cents)}, ${quote.shipping.delivery.toLowerCase()}.`
+        ? `Shipping to ${titleCase(quote.countryName)} ${eur(quote.shipping.cents)}.`
         : quote.units ? "We don't ship to that country yet." : "";
       const totalText = quote.units ? `Total ${eur(quote.totalCents)}.` : "Your cart is empty.";
       speak([pendingAnnouncement, codeText, where, totalText].filter(Boolean).join(" "));

@@ -27,7 +27,7 @@ export function cartPage(origin: string): string {
           <select id="ship-to" class="select select--full" data-country>
             ${countryOptions().map((c) => html`<option value="${c.code}"${c.code === HOME_COUNTRY ? html` selected` : ""}>${c.name}</option>`)}
           </select>
-          <p class="label label--faint" data-delivery>OMNIVA WITH TRACKING · <span class="nowrap">APPROX. 1–3 DAYS</span></p>
+          <p class="label label--faint" data-delivery>OMNIVA WITH TRACKING</p>
         </div>
         ${SITE.discountCodes
           ? html`<form class="field" data-code-form>

@@ -123,6 +123,12 @@ describe("pages", () => {
     expect(q.totalCents).toBe(q.subtotalCents + 320);
   });
 
+  it("shows no delivery time estimate in the cart", async () => {
+    const cart = await (await get("/cart")).text();
+    expect(cart).toContain("<p class=\"label label--faint\" data-delivery>OMNIVA WITH TRACKING</p>");
+    expect(cart).not.toMatch(/APPROX\.|DAYS/);
+  });
+
   it("keeps product pages to the essentials: no dispatch lines, no catalogued date", async () => {
     const body = await (await get("/sample/basic-mocha")).text();
     for (const gone of ["WE SHIP FROM OUR BEDROOM", "ONLY WITHIN EUROPE", "NOT A PRE-ORDER · DISPATCHED", "CATALOGUED"]) expect(body).not.toContain(gone);
