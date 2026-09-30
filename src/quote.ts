@@ -91,7 +91,8 @@ function priceLine(item: RawItem): QuoteLine {
   return { ...base, qty, state: qty < item.qty ? "reduced" : "ok", lineCents: qty * sample.priceCents };
 }
 
-export function quote(body: unknown, now: Date = new Date()): Quote {
+export function quote(body: unknown, now: Date = new Date(), options: { discountCodes?: boolean } = {}): Quote {
+  const codesOn = options.discountCodes ?? SITE.discountCodes;
   if (typeof body !== "object" || body === null) throw new QuoteError("body must be an object");
   const request = body as Record<string, unknown>;
   const lines = parseItems(request.items).map(priceLine);
@@ -106,7 +107,8 @@ export function quote(body: unknown, now: Date = new Date()): Quote {
 
   let discount: Quote["discount"] = null;
   let codeMessage: string | null = null;
-  const code = typeof request.code === "string" ? request.code.trim().toUpperCase().slice(0, 40) : "";
+  // With discount codes switched off (SITE.discountCodes), any code sent is ignored.
+  const code = codesOn && typeof request.code === "string" ? request.code.trim().toUpperCase().slice(0, 40) : "";
   if (code) {
     const found = findDiscount(code);
     if (!found || new Date(found.startsAt) > now) {

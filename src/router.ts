@@ -5,7 +5,6 @@ import { homePage } from "./pages/home";
 import { contactPage, infoPage, menuPage, notFoundPage, ourStoryPage } from "./pages/info";
 import { samplePage } from "./pages/sample";
 import { quote, QuoteError } from "./quote";
-import { SITE } from "./data/settings";
 import { robots, sitemap } from "./seo";
 
 export interface Env {
@@ -173,10 +172,7 @@ export async function handle(request: Request, env: Env): Promise<Response> {
     const text = await readLimited(request, MAX_BODY_BYTES);
     if (text === null) return jsonResponse({ error: "too_large" }, 413);
     try {
-      const body: unknown = JSON.parse(text);
-      // With discount codes switched off, a code sent from an old browser session is ignored.
-      if (!SITE.discountCodes && typeof body === "object" && body !== null) delete (body as Record<string, unknown>).code;
-      return jsonResponse(quote(body));
+      return jsonResponse(quote(JSON.parse(text)));
     } catch (error) {
       if (error instanceof SyntaxError || error instanceof QuoteError) return jsonResponse({ error: "bad_request" }, 400);
       throw error;

@@ -37,7 +37,7 @@ function buyForm(sample: Sample) {
   return html`<form class="buy" data-add-to-cart data-sample="${sample.slug}" action="/cart" method="get">
     <fieldset class="sizes">
       <legend class="visually-hidden">Size</legend>
-      <div class="sizes__head" aria-hidden="true"><span class="label">SIZE</span>${sample.preorder ? "" : html`<span class="label label--faint">1 PIECE PER SIZE</span>`}</div>
+      <div class="sizes__head" aria-hidden="true"><span class="label">SIZE</span>${!sample.preorder && sample.sizes.every((size) => size.stock <= 1) ? html`<span class="label label--faint">1 PIECE PER SIZE</span>` : ""}</div>
       <div class="chips">
         ${sample.sizes.map(
           (size) => {
@@ -74,7 +74,7 @@ export function samplePage(origin: string, sample: Sample): string {
               sample.onSale && !soldOut ? html`<span class="label--accent">SALE</span>` : "",
             ]
               .filter(Boolean)
-              .map((part, i) => (i ? html` <span class="label--accent">·</span> ${part}` : part))}</span>
+              .map((part, i) => (i ? html` <span class="nowrap"><span class="label--accent">·</span> ${part}</span>` : part))}</span>
             <span class="panel__price">${priceTag(sample)}</span>
           </div>
         </div>
@@ -99,7 +99,7 @@ export function samplePage(origin: string, sample: Sample): string {
   return document(
     {
       title: `${fullName(sample)} [${sample.number}]`,
-      description: `${described}${specSummary ? `: ${specSummary}` : ""}. ${soldOut ? "Sold out" : formatEur(sample.priceCents)}. Shipped from Riga.`,
+      description: `${described}${specSummary ? `: ${specSummary}` : ""}. ${soldOut ? "Sold out" : `${formatEur(sample.priceCents)}${sample.preorder ? ", pre-order" : ""}`}.`,
       path: `/sample/${sample.slug}`,
       origin,
       image: shareImageUrl(sample),

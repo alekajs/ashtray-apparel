@@ -28,7 +28,7 @@ export function homePage(origin: string, category?: string | null): string {
   return document(
     {
       title: active ? `${active.label.charAt(0)}${active.label.slice(1).toLowerCase()} | Sample Library` : "Sample Library",
-      description: "The Ashtray sample library: our own heavyweight tees and zip ups, one piece per size, shipped from Riga within Europe.",
+      description: "The Ashtray sample library: samples from our studio, available to pre-order.",
       path: "/",
       origin,
       jsonLd: [...organizationLd(origin), libraryLd(origin)],

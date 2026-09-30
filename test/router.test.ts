@@ -150,9 +150,13 @@ describe("pages", () => {
       expect(body, sample.slug).not.toMatch(/data-stock="[01]"/);
     }
     const mocha = await (await get("/sample/basic-mocha")).text();
-    expect(mocha).toMatch(/<span class="label">MOCHA <span class="label--accent">·<\/span> <span class="label--accent">PRE-ORDER<\/span><\/span>/);
+    expect(mocha).toMatch(/<span class="label">MOCHA <span class="nowrap"><span class="label--accent">·<\/span> <span class="label--accent">PRE-ORDER<\/span><\/span><\/span>/);
     const jeans = await (await get("/sample/baggy-jeans")).text();
     expect(jeans).toMatch(/<span class="label"><span class="label--accent">PRE-ORDER<\/span><\/span>/);
+    expect(mocha).toContain('<meta name="description" content="BASIC ZIP UP in mocha, sample [01] from the Ashtray sample library: 100% cotton french terry, heavyweight, 500 gsm, stone washed. €55, pre-order.">');
+    const home = await (await get("/")).text();
+    expect(home).toContain('<meta name="description" content="The Ashtray sample library: samples from our studio, available to pre-order.">');
+    for (const text of [home, mocha]) expect(text).not.toMatch(/one piece per size|Shipped from Riga/i);
     const kiss = await (await get("/sample/kiss-tee")).text();
     expect(kiss).toContain("THIS IS NOT A PRE-ORDER");
     expect(kiss).toContain("1 PIECE PER SIZE");

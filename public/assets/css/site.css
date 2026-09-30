@@ -1042,8 +1042,13 @@ main {
   text-decoration: line-through;
 }
 
+/* Empty until something is added: out of sight and out of the layout, but still announced by screen readers */
 .buy__status:empty {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }
 
 .buy__status a {

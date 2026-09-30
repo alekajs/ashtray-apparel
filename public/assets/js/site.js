@@ -129,14 +129,21 @@
       const items = read();
       const existing = items.find((item) => item.sample === sample && item.size === size);
       const which = size === "OS" ? "THIS" : `SIZE ${size}`;
-      if ((existing ? existing.qty : 0) >= stock) {
-        setStatus(`${which} IS ALREADY IN YOUR CART.`, true);
+      const inCart = existing ? existing.qty : 0;
+      if (inCart >= stock) {
+        // In-stock pieces are one of a kind; pre-orders stop at the per-order limit.
+        setStatus(stock > 1 ? `${stock} IS THE MOST PER ORDER${size === "OS" ? "" : ` FOR SIZE ${size}`}.` : `${which} IS ALREADY IN YOUR CART.`, true);
+        if (button) {
+          clearTimeout(timer);
+          button.textContent = button.dataset.label || "[ ADD TO CART ]";
+        }
         return;
       }
       if (existing) existing.qty += 1;
       else items.push({ sample, size, qty: 1 });
       write(items);
-      setStatus(size === "OS" ? "ADDED TO YOUR CART." : `ADDED SIZE ${size}.`, true);
+      const added = size === "OS" ? "ADDED" : `ADDED SIZE ${size}`;
+      setStatus(inCart + 1 > 1 ? `${added} · ${inCart + 1} IN YOUR CART.` : `${added}.`, true);
       if (button) {
         button.textContent = "[ ADDED ]";
         clearTimeout(timer);
