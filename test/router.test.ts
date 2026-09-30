@@ -101,7 +101,7 @@ describe("pages", () => {
 
   it("sells one-size items like stickers with a pre-selected ONE SIZE choice, last on the grid", async () => {
     const body = await (await get("/sample/stickers")).text();
-    expect(body).toMatch(/<input type="radio" name="size" value="OS" data-stock="1" checked required><span>ONE SIZE/);
+    expect(body).toMatch(/<input type="radio" name="size" value="OS" data-stock="10" checked required><span>ONE SIZE/);
     const home = await (await get("/")).text();
     expect(home.lastIndexOf('<a class="tile')).toBe(home.indexOf('<a class="tile" href="/sample/stickers"'));
   });
@@ -136,6 +136,28 @@ describe("pages", () => {
     expect(body).toContain("<p>Ashtray Apparel is that side of things. We experiment, have fun. Everything is made in small quantities or 1 piece.</p>");
     expect(body).not.toContain("THE TWO OF US");
     expect(body).not.toContain("random evening");
+  });
+
+  it("shows pre-orders as pre-orders, and keeps in-stock wording for in-stock samples", async () => {
+    for (const sample of SAMPLES.filter((s) => s.preorder)) {
+      const body = await (await get(`/sample/${sample.slug}`)).text();
+      expect(body, sample.slug).toContain("[ PRE-ORDER ]");
+      expect(body, sample.slug).toContain('<span class="label--accent">PRE-ORDER</span>');
+      expect(body, sample.slug).not.toContain("THIS IS NOT A PRE-ORDER");
+      expect(body, sample.slug).not.toContain("1 PIECE PER SIZE");
+      expect(body, sample.slug).not.toContain("[ ADD TO CART ]");
+      expect(body, sample.slug).toContain('"availability":"https://schema.org/PreOrder"');
+      expect(body, sample.slug).not.toMatch(/data-stock="[01]"/);
+    }
+    const mocha = await (await get("/sample/basic-mocha")).text();
+    expect(mocha).toMatch(/<span class="label">MOCHA <span class="label--accent">·<\/span> <span class="label--accent">PRE-ORDER<\/span><\/span>/);
+    const jeans = await (await get("/sample/baggy-jeans")).text();
+    expect(jeans).toMatch(/<span class="label"><span class="label--accent">PRE-ORDER<\/span><\/span>/);
+    const kiss = await (await get("/sample/kiss-tee")).text();
+    expect(kiss).toContain("THIS IS NOT A PRE-ORDER");
+    expect(kiss).toContain("1 PIECE PER SIZE");
+    expect(kiss).not.toContain("PRE-ORDER</span>");
+    expect(kiss).toContain('"availability":"https://schema.org/OutOfStock"');
   });
 
   it("shows sold-out samples without an add button", async () => {

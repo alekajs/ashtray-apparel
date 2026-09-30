@@ -141,7 +141,7 @@
         button.textContent = "[ ADDED ]";
         clearTimeout(timer);
         timer = setTimeout(() => {
-          button.textContent = "[ ADD TO CART ]";
+          button.textContent = button.dataset.label || "[ ADD TO CART ]";
         }, 2000);
       }
     });

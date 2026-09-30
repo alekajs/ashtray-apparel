@@ -133,6 +133,7 @@
     const meta = el("span", "label", line.colour || "");
     meta.append(el("span", "row__size-inline", `${line.colour ? " · " : ""}${sizeText(line.size)}`));
     info.append(name, meta);
+    if (line.preorder && line.state !== "unavailable") info.append(el("span", "label label--accent", "PRE-ORDER"));
     const note = stateNote(line);
     if (note) info.append(el("span", "label label--accent", note));
 

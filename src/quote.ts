@@ -1,12 +1,12 @@
 // Prices a cart on the server: the browser only sends sample, size and quantity.
-import { getSample, type Sample } from "./data/catalog";
+import { MAX_PER_SIZE, getSample, orderLimit, type Sample } from "./data/catalog";
 import { findDiscount } from "./data/discounts";
 import { SITE } from "./data/settings";
 import { COUNTRY_NAMES, HOME_COUNTRY, shippingCents, zoneFor } from "./data/shipping";
 import { formatEur } from "./money";
 
 export const MAX_LINES = 20;
-export const MAX_QTY = 10;
+export const MAX_QTY = MAX_PER_SIZE;
 
 export type LineState = "ok" | "reduced" | "sold_out" | "unavailable";
 
@@ -16,6 +16,8 @@ export interface QuoteLine {
   qty: number;
   maxQty: number;
   state: LineState;
+  /** Made once enough orders come in (shown as PRE-ORDER in the cart). */
+  preorder?: boolean;
   number?: string;
   name?: string;
   colour?: string;
@@ -81,10 +83,11 @@ function priceLine(item: RawItem): QuoteLine {
     url: `/sample/${sample.slug}`,
     image: `/img/samples/${sample.slug}/01-480.webp`,
     unitCents: sample.priceCents,
-    maxQty: Math.max(0, size.stock),
+    preorder: sample.preorder,
+    maxQty: orderLimit(sample, size),
   };
-  if (size.stock <= 0) return { ...base, qty: 0, state: "sold_out", lineCents: 0 };
-  const qty = Math.min(item.qty, size.stock);
+  if (base.maxQty <= 0) return { ...base, qty: 0, state: "sold_out", lineCents: 0 };
+  const qty = Math.min(item.qty, base.maxQty);
   return { ...base, qty, state: qty < item.qty ? "reduced" : "ok", lineCents: qty * sample.priceCents };
 }
 

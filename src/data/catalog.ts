@@ -34,6 +34,11 @@ export interface Sample {
   slug: string;
   /** Library filter the sample appears under. */
   category: Category;
+  /**
+   * true: a pre-order. The piece is made once enough orders come in, so sizes aren't limited by stock
+   * (up to MAX_PER_SIZE per order). false: already in stock, limited to each size's `stock`, and can sell out.
+   */
+  preorder: boolean;
   number: string;
   name: string;
   colour: string;
@@ -50,10 +55,8 @@ export interface Sample {
   cutout?: { width: number; height: number };
 }
 
-const DELIVERY = [
-  "THIS IS NOT A PRE-ORDER",
-];
-export const DELIVERY_NOTES = DELIVERY;
+/** Shown on in-stock samples only. */
+export const IN_STOCK_NOTE = "THIS IS NOT A PRE-ORDER";
 export const FINAL_NOTE = "ALL SALES ARE FINAL!";
 
 const TEE_FIT = ["CROPPED/BOXY FIT; SIZE UP FOR AN OVERSIZED FIT", "RALPH IS 6 FT (183 CM) AND WEARS A SIZE M HERE"];
@@ -98,7 +101,7 @@ const sizes = (codes: SizeCode[], stock: number): Size[] => codes.map((code) => 
 
 /** A newly added sample with no description yet: placeholder price and sizes, one cut-out photo. */
 const draft = (slug: string, number: string, name: string, colour = "", category: Category = "upper", codes: SizeCode[] = ["S", "M", "L"]): Sample => ({
-  slug, category, number, name, colour, priceCents: 5000, onSale: false,
+  slug, category, preorder: true, number, name, colour, priceCents: 5000, onSale: false,
   sizes: sizes(codes, 1), spec: [], fit: [],
   figures: figures(slug, ["FLAT"]),
   cutout: cutout(slug),
@@ -108,13 +111,13 @@ const draft = (slug: string, number: string, name: string, colour = "", category
 // draft(): added 2026-09-14 with placeholder price, sizes and names until the owner writes the descriptions.
 export const SAMPLES: Sample[] = [
   {
-    slug: "basic-mocha", category: "upper", number: "01", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
+    slug: "basic-mocha", category: "upper", preorder: true, number: "01", name: "BASIC ZIP UP", colour: "MOCHA", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-mocha", ["FRONT", "BACK", "SLEEVE", "WORN, RALPH", "WORN, ALICE"]),
     cutout: cutout("basic-mocha"),
   },
   {
-    slug: "basic-olive", category: "upper", number: "02", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
+    slug: "basic-olive", category: "upper", preorder: true, number: "02", name: "BASIC ZIP UP", colour: "OLIVE", priceCents: 5500, onSale: false,
     catalogued: "2024-11-18", sizes: sizes(["M", "L", "XL"], 1), spec: HOODIE_SPEC, important: HOODIE_IMPORTANT, fit: HOODIE_FIT,
     figures: figures("basic-olive", ["FRONT", "BACK", "SLEEVE", "WORN, ALICE", "WORN, RALPH"]),
     cutout: cutout("basic-olive"),
@@ -127,19 +130,19 @@ export const SAMPLES: Sample[] = [
   draft("cyber-tee-red", "08", "CYBER TEE", "RED"),
   draft("chromatics-hoodie", "09", "CHROMATICS HOODIE"),
   {
-    slug: "abstract-tee", category: "upper", number: "10", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
+    slug: "abstract-tee", category: "upper", preorder: true, number: "10", name: "ABSTRACT TEE", colour: "NAVY SMOKE", priceCents: 1500, onSale: true,
     catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
     figures: figures("abstract-tee", ["FRONT", "WORN, RALPH"]),
     cutout: cutout("abstract-tee"),
   },
   {
-    slug: "crawler", category: "upper", number: "11", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
+    slug: "crawler", category: "upper", preorder: true, number: "11", name: "CRAWLER TEE", colour: "SAND", priceCents: 1500, onSale: true,
     catalogued: "2024-09-07", sizes: sizes(["S", "M", "L"], 1), spec: teeSpec(280), fit: TEE_FIT,
     figures: figures("crawler", ["FRONT", "WORN, RALPH"]),
     cutout: cutout("crawler"),
   },
   {
-    slug: "kiss-tee", category: "upper", number: "12", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
+    slug: "kiss-tee", category: "upper", preorder: false, number: "12", name: "KISS TEE", colour: "WHITE PEARL", priceCents: 2200, onSale: false,
     catalogued: "2024-10-06", sizes: sizes(["S", "M", "L"], 0), spec: teeSpec(220), fit: TEE_FIT,
     figures: figures("kiss-tee", ["FRONT", "WORN, RALPH"]),
     cutout: cutout("kiss-tee"),
@@ -156,8 +159,16 @@ export function getSample(slug: string): Sample | undefined {
   return SAMPLES.find((sample) => sample.slug === slug);
 }
 
+/** Most of one size a single order can take (the cart's quantity menu goes up to this too). */
+export const MAX_PER_SIZE = 10;
+
+/** How many of this size one order can take: pre-orders aren't limited by stock. 0 means it can't be ordered. */
+export function orderLimit(sample: Pick<Sample, "preorder">, size: Pick<Size, "stock">): number {
+  return sample.preorder ? MAX_PER_SIZE : Math.max(0, Math.min(size.stock, MAX_PER_SIZE));
+}
+
 export function isSoldOut(sample: Sample): boolean {
-  return sample.sizes.every((size) => size.stock <= 0);
+  return sample.sizes.every((size) => orderLimit(sample, size) <= 0);
 }
 
 export const IMAGE_WIDTHS = [480, 960, 1600] as const;

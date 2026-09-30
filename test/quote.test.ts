@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_PER_SIZE, orderLimit } from "../src/data/catalog";
 import { quote, QuoteError } from "../src/quote";
 import { formatEur } from "../src/money";
 
@@ -84,15 +85,26 @@ describe("quote", () => {
     expect(q.units).toBe(1);
   });
 
-  it("lowers quantities to the stock (1 per size)", () => {
+  it("lets pre-orders take several of a size, up to the per-size maximum", () => {
     const q = quote({ items: [{ sample: "basic-mocha", size: "L", qty: 3 }], country: "LV" }, NOW);
-    expect(q.lines[0]).toMatchObject({ state: "reduced", qty: 1, maxQty: 1, lineCents: 5500 });
+    expect(q.lines[0]).toMatchObject({ state: "ok", qty: 3, maxQty: MAX_PER_SIZE, preorder: true, lineCents: 16500 });
+    const many = quote({ items: [{ sample: "basic-mocha", size: "L", qty: 99 }], country: "LV" }, NOW);
+    expect(many.lines[0]).toMatchObject({ qty: MAX_PER_SIZE });
+  });
+
+  it("limits in-stock samples to their stock", () => {
+    expect(orderLimit({ preorder: false }, { stock: 1 })).toBe(1);
+    expect(orderLimit({ preorder: false }, { stock: 0 })).toBe(0);
+    expect(orderLimit({ preorder: false }, { stock: 50 })).toBe(MAX_PER_SIZE);
+    expect(orderLimit({ preorder: true }, { stock: 0 })).toBe(MAX_PER_SIZE);
+    const kiss = quote({ items: [{ sample: "kiss-tee", size: "M", qty: 2 }], country: "LV" }, NOW);
+    expect(kiss.lines[0]).toMatchObject({ state: "sold_out", preorder: false, maxQty: 0 });
   });
 
   it("merges duplicate lines and ignores junk", () => {
     const q = quote({ items: [mocha, { ...mocha }, { sample: 5 }, null, { sample: "crawler", size: "M", qty: 0 }], country: "LV" }, NOW);
     expect(q.lines).toHaveLength(1);
-    expect(q.lines[0]).toMatchObject({ state: "reduced", qty: 1 });
+    expect(q.lines[0]).toMatchObject({ state: "ok", qty: 2 });
   });
 
   it("flags unknown samples and sizes", () => {

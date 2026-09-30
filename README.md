@@ -18,7 +18,7 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 - **Cart:** kept in the visitor's browser. Prices, shipping and discount codes are always worked out on the server (`/api/quote`), so they can't be changed from the browser.
 - **Shipping:** Omniva, the old Big Cartel rates. Latvia €2.50 + €0.70 per extra item; Estonia/Lithuania €5.20 + €0.80; Finland €12 + €2; rest of Europe €30 + €5.
 - **Discount codes:** FREAKYYAH (15% off €70+ of samples), SWAGG10 (10%), EQUE15 (15%, 1 use left), FREESWAGG (free shipping in Latvia).
-- **Stock:** 1 per size; KISS TEE is sold out.
+- **Pre-order or in stock:** each sample has `preorder: true` or `false` in `src/data/catalog.ts`. Pre-orders show a PRE-ORDER tag and a `[ PRE-ORDER ]` button, and any size can be ordered (up to 10 per order). In-stock samples show `[ ADD TO CART ]` and "THIS IS NOT A PRE-ORDER", are limited to their stock (1 per size), and can sell out. Everything is a pre-order except KISS TEE, which is in stock and sold out.
 - **Order:** the library shows samples in the order they're listed in `src/data/catalog.ts`, and the numbers follow that order.
 - **Categories:** UPPER, LOWER and ACCESSORIES filter the library (`/?category=upper`). Each sample's `category` is set in `src/data/catalog.ts`. One-size items (like stickers) use size `OS`, shown as "ONE SIZE".
 - **The seven samples added 14 Sept 2026** (Molly ×2, baggy jeans, cyber waffle, cyber tee ×2, Chromatics hoodie) have a placeholder €50 price, sizes S/M/L and no description yet.
@@ -32,7 +32,7 @@ The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-arch
 
 | To change | Edit |
 |---|---|
-| Samples: names, prices, sizes, stock, spec sheets | `src/data/catalog.ts` |
+| Samples: names, prices, sizes, stock, pre-order or in stock, spec sheets | `src/data/catalog.ts` |
 | Shipping zones and countries | `src/data/shipping.ts` |
 | Discount codes | `src/data/discounts.ts` |
 | Promo line, social links, studio link, the BUILD YOUR OWN form link, the pre-order note, notices | `src/data/settings.ts` |

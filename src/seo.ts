@@ -1,4 +1,4 @@
-import { SAMPLES, fullName, imageUrl, isSoldOut, sizeLabel, type Sample } from "./data/catalog";
+import { SAMPLES, fullName, imageUrl, orderLimit, sizeLabel, type Sample } from "./data/catalog";
 import { INFO_PAGES } from "./data/pages";
 import { SITE } from "./data/settings";
 
@@ -48,7 +48,9 @@ export function sampleLd(origin: string, sample: Sample): object[] {
         price: (sample.priceCents / 100).toFixed(2),
         priceCurrency: "EUR",
         url,
-        availability: size.stock > 0 && !isSoldOut(sample) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        availability: sample.preorder
+          ? "https://schema.org/PreOrder"
+          : orderLimit(sample, size) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         itemCondition: "https://schema.org/NewCondition",
       })),
     },

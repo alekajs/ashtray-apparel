@@ -1,5 +1,5 @@
 import { cursor, priceTag, studioBox } from "../components";
-import { DELIVERY_NOTES, FINAL_NOTE, fullName, imageSrcset, imageUrl, isSoldOut, shareImageUrl, sizeLabel, type Sample } from "../data/catalog";
+import { FINAL_NOTE, IN_STOCK_NOTE, fullName, imageSrcset, imageUrl, isSoldOut, orderLimit, shareImageUrl, sizeLabel, type Sample } from "../data/catalog";
 import { html } from "../html";
 import { document } from "../layout";
 import { formatEur } from "../money";
@@ -33,19 +33,23 @@ function gallery(sample: Sample) {
 function buyForm(sample: Sample) {
   const soldOut = isSoldOut(sample);
   const onlyOne = sample.sizes.length === 1;
+  const buttonLabel = sample.preorder ? "[ PRE-ORDER ]" : "[ ADD TO CART ]";
   return html`<form class="buy" data-add-to-cart data-sample="${sample.slug}" action="/cart" method="get">
     <fieldset class="sizes">
       <legend class="visually-hidden">Size</legend>
-      <div class="sizes__head" aria-hidden="true"><span class="label">SIZE</span><span class="label label--faint">1 PIECE PER SIZE</span></div>
+      <div class="sizes__head" aria-hidden="true"><span class="label">SIZE</span>${sample.preorder ? "" : html`<span class="label label--faint">1 PIECE PER SIZE</span>`}</div>
       <div class="chips">
         ${sample.sizes.map(
-          (size) => html`<label class="chip"><input type="radio" name="size" value="${size.code}" data-stock="${size.stock}"${size.stock <= 0 ? html` disabled` : onlyOne ? html` checked` : ""} required><span>${sizeLabel(size.code)}<span class="visually-hidden">${size.stock <= 0 ? ", sold out" : ""}</span></span></label>`,
+          (size) => {
+            const limit = orderLimit(sample, size);
+            return html`<label class="chip"><input type="radio" name="size" value="${size.code}" data-stock="${limit}"${limit <= 0 ? html` disabled` : onlyOne ? html` checked` : ""} required><span>${sizeLabel(size.code)}<span class="visually-hidden">${limit <= 0 ? ", sold out" : ""}</span></span></label>`;
+          },
         )}
       </div>
     </fieldset>
     ${soldOut
       ? html`<button class="btn btn--primary" type="submit" disabled>[ SOLD OUT ]</button>`
-      : html`<button class="btn btn--primary" type="submit" data-add-button>[ ADD TO CART ]</button>`}
+      : html`<button class="btn btn--primary" type="submit" data-add-button data-label="${buttonLabel}">${buttonLabel}</button>`}
     <p class="buy__status label label--faint" role="status" aria-live="polite" data-add-status>${soldOut ? "THIS SAMPLE HAS SOLD OUT." : ""}</p>
     <noscript><p class="label">Adding to the cart needs JavaScript.</p></noscript>
   </form>`;
@@ -64,7 +68,13 @@ export function samplePage(origin: string, sample: Sample): string {
           <p class="label label--accent">SAMPLE [${sample.number}]</p>
           <h1 id="sample-title" class="display">${sample.name}${cursor()}</h1>
           <div class="panel__meta">
-            <span class="label">${sample.colour}${sample.onSale && !soldOut ? html` <span class="label--accent">· SALE</span>` : ""}</span>
+            <span class="label">${[
+              sample.colour,
+              sample.preorder && !soldOut ? html`<span class="label--accent">PRE-ORDER</span>` : "",
+              sample.onSale && !soldOut ? html`<span class="label--accent">SALE</span>` : "",
+            ]
+              .filter(Boolean)
+              .map((part, i) => (i ? html` <span class="label--accent">·</span> ${part}` : part))}</span>
             <span class="panel__price">${priceTag(sample)}</span>
           </div>
         </div>
@@ -78,7 +88,7 @@ export function samplePage(origin: string, sample: Sample): string {
         <div class="notes">
           ${sample.important ? html`<p><span class="label--accent">* </span>${sample.important}</p>` : ""}
           ${sample.fit.length ? html`<ul class="notes__list muted">${sample.fit.map((line) => html`<li>${line}</li>`)}</ul>` : ""}
-          <ul class="notes__list muted">${DELIVERY_NOTES.map((line) => html`<li>${line}</li>`)}</ul>
+          ${sample.preorder ? "" : html`<ul class="notes__list muted"><li>${IN_STOCK_NOTE}</li></ul>`}
           <p class="notes__final">${FINAL_NOTE}</p>
         </div>
         ${studioBox()}
