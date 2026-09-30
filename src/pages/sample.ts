@@ -12,10 +12,11 @@ function gallery(sample: Sample) {
     <div class="gallery__track" data-gallery>
       ${sample.figures.map(
         (figure, i) => html`<figure class="fig" id="fig-${figure.n}">
-          <div class="fig__frame"><img src="${imageUrl(sample, figure.n, 960)}" srcset="${imageSrcset(sample, figure.n)}"
+          <div class="fig__frame"><a class="fig__open" href="${imageUrl(sample, figure.n, 1600)}" data-zoom
+            data-caption="FIG. ${String(figure.n).padStart(2, "0")} — ${figure.caption}"><img src="${imageUrl(sample, figure.n, 960)}" srcset="${imageSrcset(sample, figure.n)}"
             sizes="(min-width: 1024px) ${i === 0 || (i === total - 1 && (i + 1) % 2 === 0) ? "54vw" : "26vw"}, 96vw"
             width="${figure.width}" height="${figure.height}" alt="${title}, ${figure.caption.toLowerCase()}"
-            ${i === 0 ? html`fetchpriority="high"` : html`loading="lazy"`} decoding="async"></div>
+            ${i === 0 ? html`fetchpriority="high"` : html`loading="lazy"`} decoding="async"><span class="visually-hidden"> (open full size)</span></a></div>
           <figcaption><span>FIG. ${String(figure.n).padStart(2, "0")} — ${figure.caption}</span><span class="fig__count">${figure.n}&nbsp;/&nbsp;${total}</span></figcaption>
         </figure>`,
       )}
@@ -27,7 +28,23 @@ function gallery(sample: Sample) {
           )}
         </div>`
       : ""}
-  </section>`;
+  </section>
+  <dialog class="zoom" aria-label="Photos of ${title}" data-zoom-dialog>
+    <div class="zoom__bar">
+      <span class="zoom__count label" data-zoom-count></span>
+      <button class="bar__action bar__action--end" type="button" data-zoom-close autofocus>[ CLOSE ]</button>
+    </div>
+    <div class="zoom__stage" data-zoom-stage><img class="zoom__img" alt="" data-zoom-img></div>
+    <div class="zoom__foot">
+      <p class="zoom__caption label" aria-live="polite" data-zoom-caption></p>
+      ${total > 1
+        ? html`<div class="zoom__nav">
+            <button class="bar__action" type="button" data-zoom-prev aria-label="Previous photo">[ ← ]</button>
+            <button class="bar__action" type="button" data-zoom-next aria-label="Next photo">[ → ]</button>
+          </div>`
+        : ""}
+    </div>
+  </dialog>`;
 }
 
 function buyForm(sample: Sample) {
@@ -70,7 +87,6 @@ export function samplePage(origin: string, sample: Sample): string {
           <div class="panel__meta">
             <span class="label">${[
               sample.colour,
-              sample.preorder && !soldOut ? html`<span class="label--accent">PRE-ORDER</span>` : "",
               sample.onSale && !soldOut ? html`<span class="label--accent">SALE</span>` : "",
             ]
               .filter(Boolean)

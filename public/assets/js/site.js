@@ -154,6 +154,85 @@
     });
   });
 
+  // ---------------------------------------------------------------- photo viewer (sample pages)
+  // Each photo links to its large version, so it still opens without JavaScript; with it, the photos open in
+  // a full-screen viewer: arrows, arrow keys or a swipe move between photos, CLOSE, Esc or the black around closes.
+  const zoom = document.querySelector("[data-zoom-dialog]");
+  const zoomLinks = Array.from(document.querySelectorAll("a[data-zoom]"));
+  if (zoom && zoomLinks.length && typeof zoom.showModal === "function") {
+    const img = zoom.querySelector("[data-zoom-img]");
+    const stage = zoom.querySelector("[data-zoom-stage]");
+    const caption = zoom.querySelector("[data-zoom-caption]");
+    const counter = zoom.querySelector("[data-zoom-count]");
+    const prev = zoom.querySelector("[data-zoom-prev]");
+    const next = zoom.querySelector("[data-zoom-next]");
+    const track = document.querySelector("[data-gallery]");
+    const pad = (n) => String(n).padStart(2, "0");
+    let current = 0;
+
+    const show = (i) => {
+      current = (i + zoomLinks.length) % zoomLinks.length;
+      const link = zoomLinks[current];
+      const thumb = link.querySelector("img");
+      img.sizes = "100vw";
+      img.srcset = thumb ? thumb.srcset : "";
+      img.src = link.href;
+      img.alt = thumb ? thumb.alt : "";
+      counter.textContent = `${pad(current + 1)} / ${pad(zoomLinks.length)}`;
+      caption.textContent = link.dataset.caption || "";
+    };
+
+    zoomLinks.forEach((link, i) => {
+      link.addEventListener("click", (event) => {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        show(i);
+        zoom.showModal();
+        document.body.classList.add("zoom-open");
+      });
+    });
+
+    zoom.querySelector("[data-zoom-close]").addEventListener("click", () => zoom.close());
+    if (prev) prev.addEventListener("click", () => show(current - 1));
+    if (next) next.addEventListener("click", () => show(current + 1));
+    zoom.addEventListener("keydown", (event) => {
+      if (zoomLinks.length < 2) return;
+      if (event.key === "ArrowLeft") show(current - 1);
+      else if (event.key === "ArrowRight") show(current + 1);
+    });
+    zoom.addEventListener("click", (event) => {
+      if (event.target === zoom || event.target === stage) zoom.close();
+    });
+
+    let startX = null;
+    let startY = 0;
+    stage.addEventListener("touchstart", (event) => {
+      startX = event.touches.length === 1 ? event.touches[0].clientX : null;
+      startY = event.touches.length === 1 ? event.touches[0].clientY : 0;
+    }, { passive: true });
+    stage.addEventListener("touchend", (event) => {
+      if (startX === null || zoomLinks.length < 2) return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+      startX = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(current + (dx < 0 ? 1 : -1));
+    });
+
+    zoom.addEventListener("close", () => {
+      document.body.classList.remove("zoom-open");
+      // Leave the page showing the photo that was open last (phones scroll the photos sideways).
+      const figure = zoomLinks[current].closest(".fig");
+      if (track && figure && track.scrollWidth > track.clientWidth) {
+        track.scrollTo({ left: figure.offsetLeft - track.firstElementChild.offsetLeft });
+      }
+      zoomLinks[current].focus({ preventScroll: true });
+    });
+    window.addEventListener("pagehide", () => {
+      if (zoom.open) zoom.close();
+    });
+  }
+
   // ---------------------------------------------------------------- photo index (phones)
   document.querySelectorAll("[data-gallery]").forEach((track) => {
     const index = track.parentElement && track.parentElement.querySelector("[data-gallery-index]");

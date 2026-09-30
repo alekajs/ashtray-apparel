@@ -54,7 +54,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-body.menu-open {
+body.menu-open,
+body.zoom-open {
   overflow: hidden;
 }
 
@@ -827,6 +828,96 @@ main {
 
 .fig__frame img {
   width: 100%;
+}
+
+/* position: relative keeps the hidden "(open full size)" label inside the sideways-scrolling strip on phones;
+   without it the label escapes the strip and makes the page wider than the screen */
+.fig__open {
+  position: relative;
+  display: block;
+  cursor: zoom-in;
+}
+
+/* ---------------------------------------------------------------- photo viewer (sample pages) */
+
+.zoom {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--bg);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.zoom[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.zoom::backdrop {
+  background: var(--bg);
+}
+
+.zoom__bar,
+.zoom__foot {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 var(--gutter);
+}
+
+.zoom__bar {
+  height: 64px;
+}
+
+.zoom__foot {
+  min-height: 64px;
+  padding-bottom: 8px;
+}
+
+/* The photo is as large as fits; tapping the black around it closes the viewer */
+.zoom__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0 var(--gutter);
+  touch-action: pan-y;
+}
+
+.zoom__img {
+  position: absolute;
+  inset: 0;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  margin: auto;
+}
+
+.zoom__caption {
+  min-width: 0;
+}
+
+.zoom__nav {
+  display: flex;
+  flex-shrink: 0;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .zoom__bar {
+    height: 76px;
+  }
+
+  .zoom__foot {
+    min-height: 76px;
+  }
 }
 
 .fig figcaption {
