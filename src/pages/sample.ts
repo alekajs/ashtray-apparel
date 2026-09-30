@@ -1,5 +1,5 @@
 import { cursor, priceTag, studioBox } from "../components";
-import { DELIVERY_NOTES, FINAL_NOTE, formatCatalogued, fullName, imageSrcset, imageUrl, isSoldOut, shareImageUrl, sizeLabel, type Sample } from "../data/catalog";
+import { DELIVERY_NOTES, FINAL_NOTE, fullName, imageSrcset, imageUrl, isSoldOut, shareImageUrl, sizeLabel, type Sample } from "../data/catalog";
 import { html } from "../html";
 import { document } from "../layout";
 import { formatEur } from "../money";
@@ -46,14 +46,14 @@ function buyForm(sample: Sample) {
     ${soldOut
       ? html`<button class="btn btn--primary" type="submit" disabled>[ SOLD OUT ]</button>`
       : html`<button class="btn btn--primary" type="submit" data-add-button>[ ADD TO CART ]</button>`}
-    <p class="buy__status label label--faint" role="status" aria-live="polite" data-add-status>${soldOut ? "THIS SAMPLE HAS SOLD OUT." : "NOT A PRE-ORDER · DISPATCHED THE FOLLOWING DAY"}</p>
+    <p class="buy__status label label--faint" role="status" aria-live="polite" data-add-status>${soldOut ? "THIS SAMPLE HAS SOLD OUT." : ""}</p>
     <noscript><p class="label">Adding to the cart needs JavaScript.</p></noscript>
   </form>`;
 }
 
 export function samplePage(origin: string, sample: Sample): string {
   const soldOut = isSoldOut(sample);
-  const spec: [string, string][] = sample.catalogued ? [...sample.spec, ["CATALOGUED", formatCatalogued(sample.catalogued)]] : sample.spec;
+  const spec = sample.spec;
   const content = html`<nav class="crumbs label" aria-label="Breadcrumb">
       <a href="/">← LIBRARY</a><span aria-hidden="true">/</span><span class="label--ink" aria-current="page">${sample.name} [${sample.number}]</span>
     </nav>

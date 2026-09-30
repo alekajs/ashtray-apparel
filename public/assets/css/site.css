@@ -362,6 +362,12 @@ main {
   gap: 0 22px;
 }
 
+@media (min-width: 768px) {
+  .foot__links {
+    margin-left: auto;
+  }
+}
+
 .foot__links a {
   display: inline-flex;
   align-items: center;
@@ -1034,6 +1040,10 @@ main {
   border-color: var(--line-strong);
   color: var(--disabled);
   text-decoration: line-through;
+}
+
+.buy__status:empty {
+  display: none;
 }
 
 .buy__status a {

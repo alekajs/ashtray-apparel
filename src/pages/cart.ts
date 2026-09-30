@@ -29,14 +29,16 @@ export function cartPage(origin: string): string {
           </select>
           <p class="label label--faint" data-delivery>OMNIVA WITH TRACKING · <span class="nowrap">APPROX. 1–3 DAYS</span></p>
         </div>
-        <form class="field" data-code-form>
+        ${SITE.discountCodes
+          ? html`<form class="field" data-code-form>
           <label class="label" for="discount-code">DISCOUNT CODE</label>
           <div class="code">
             <input id="discount-code" class="input" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="40">
             <button class="btn btn--ghost" type="submit">[ APPLY ]</button>
           </div>
           <p class="message" role="status" aria-live="polite" data-code-message></p>
-        </form>
+        </form>`
+          : ""}
         <dl class="totals">
           <div class="kv"><dt>SUBTOTAL</dt><dd data-subtotal>€0</dd></div>
           <div class="kv kv--accent" data-discount-row hidden><dt data-discount-label>DISCOUNT</dt><dd data-discount>−€0</dd></div>

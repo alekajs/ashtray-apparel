@@ -76,7 +76,8 @@ describe("pages", () => {
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
     expect(body).toContain("SOLD OUT");
     expect(body.indexOf('class="library__intro label"')).toBeLessThan(body.indexOf('class="grid"'));
-    expect(body).toContain("If enough pre-orders go through, you receive the piece. If not, you&#39;re refunded.");
+    expect(body).toContain('<p class="library__intro label">These samples are from our studio and can be pre-ordered.</p>');
+    expect(body).not.toContain("refunded");
   });
 
   it("filters the library by category, and ignores unknown categories", async () => {
@@ -103,6 +104,38 @@ describe("pages", () => {
     expect(body).toMatch(/<input type="radio" name="size" value="OS" data-stock="1" checked required><span>ONE SIZE/);
     const home = await (await get("/")).text();
     expect(home.lastIndexOf('<a class="tile')).toBe(home.indexOf('<a class="tile" href="/sample/stickers"'));
+  });
+
+  it("has no coupon promo or discount code box while codes are off, and ignores sent codes", async () => {
+    for (const path of ["/", "/cart", "/sample/basic-mocha", "/our-story"]) {
+      const body = await (await get(path)).text();
+      expect(body).not.toContain("FREAKYYAH");
+      expect(body).not.toContain("foot__promo");
+    }
+    expect(await (await get("/cart")).text()).not.toContain("data-code-form");
+    const res = await get("/api/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [{ sample: "basic-mocha", size: "M", qty: 1 }, { sample: "basic-olive", size: "L", qty: 1 }], country: "LV", code: "FREAKYYAH" }),
+    });
+    const q = (await res.json()) as { discount: unknown; subtotalCents: number; totalCents: number };
+    expect(q.discount).toBeNull();
+    expect(q.totalCents).toBe(q.subtotalCents + 320);
+  });
+
+  it("keeps product pages to the essentials: no dispatch lines, no catalogued date", async () => {
+    const body = await (await get("/sample/basic-mocha")).text();
+    for (const gone of ["WE SHIP FROM OUR BEDROOM", "ONLY WITHIN EUROPE", "NOT A PRE-ORDER · DISPATCHED", "CATALOGUED"]) expect(body).not.toContain(gone);
+    expect(body).toContain("ALL SALES ARE FINAL!");
+    expect(await (await get("/sample/kiss-tee")).text()).toContain("THIS SAMPLE HAS SOLD OUT.");
+  });
+
+  it("tells Our Story in the new words, without a photo caption", async () => {
+    const body = await (await get("/our-story")).text();
+    expect(body).toContain("<p>Our main work is Ashtray Studio, we help brands bring their clothing to life. But we also make stuff for ourselves.</p>");
+    expect(body).toContain("<p>Ashtray Apparel is that side of things. We experiment, have fun. Everything is made in small quantities or 1 piece.</p>");
+    expect(body).not.toContain("THE TWO OF US");
+    expect(body).not.toContain("random evening");
   });
 
   it("shows sold-out samples without an add button", async () => {

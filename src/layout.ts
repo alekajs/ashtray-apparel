@@ -71,7 +71,6 @@ export function menuContent(currentPath: string, closeAction: Html): Html {
 
 export function footer(): Html {
   return html`<footer class="foot">
-    <p class="foot__promo">${SITE.announcement.text} <strong>${SITE.announcement.code}</strong></p>
     <ul class="foot__links">
       <li><a href="${SITE.instagram.url}" target="_blank" rel="noopener">INSTAGRAM<span class="visually-hidden"> (opens in a new tab)</span></a></li>
       <li><a href="${SITE.tiktok.url}" target="_blank" rel="noopener">TIKTOK<span class="visually-hidden"> (opens in a new tab)</span></a></li>

@@ -23,7 +23,6 @@ export function ourStoryPage(origin: string): string {
       <figure class="fig fig--single">
         <div class="fig__frame"><img src="/img/pages/our-story-960.webp" srcset="/img/pages/our-story-480.webp 480w, /img/pages/our-story-960.webp 960w"
           sizes="(min-width: 1024px) 340px, 260px" width="${story.w}" height="${story.h}" alt="The two of us with a vintage Mercedes in an underground car park" decoding="async"></div>
-        <figcaption><span>FIG. 01 — THE TWO OF US</span></figcaption>
       </figure>
     </div>
     <div class="prose story__text">${OUR_STORY.paragraphs.map((p) => html`<p>${p}</p>`)}</div>

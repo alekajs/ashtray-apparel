@@ -11,8 +11,8 @@
   const empty = $("[data-cart-empty]");
   const country = $("[data-country]");
   const delivery = $("[data-delivery]");
-  const codeForm = $("[data-code-form]");
-  const codeInput = codeForm.querySelector("input");
+  const codeForm = $("[data-code-form]"); // missing while discount codes are switched off
+  const codeInput = codeForm ? codeForm.querySelector("input") : null;
   const codeMessage = $("[data-code-message]");
   const subtotal = $("[data-subtotal]");
   const discountRow = $("[data-discount-row]");
@@ -48,7 +48,8 @@
 
   const savedCountry = getStored(localStorage, COUNTRY_KEY);
   if (savedCountry && Array.from(country.options).some((option) => option.value === savedCountry)) country.value = savedCountry;
-  codeInput.value = getStored(sessionStorage, CODE_KEY) || "";
+  if (codeInput) codeInput.value = getStored(sessionStorage, CODE_KEY) || "";
+  else setStored(sessionStorage, CODE_KEY, "");
 
   const eur = (cents) => {
     const sign = cents < 0 ? "−" : "";
@@ -216,7 +217,7 @@
       delivery.replaceChildren("WE DON'T SHIP TO THAT COUNTRY YET.");
     }
     setText(total, eur(quote.totalCents));
-    setText(
+    if (codeMessage) setText(
       codeMessage,
       quote.discount ? `* CODE APPLIED — “${quote.discount.description}”` : quote.codeMessage ? `* ${quote.codeMessage}` : "",
     );
@@ -244,7 +245,7 @@
       const response = await fetch("/api/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, country: country.value, code: codeInput.value }),
+        body: JSON.stringify({ items, country: country.value, code: codeInput ? codeInput.value : "" }),
       });
       if (!response.ok) throw new Error(`quote failed: ${response.status}`);
       const quote = await response.json();
@@ -264,7 +265,7 @@
     refresh();
   });
 
-  codeForm.addEventListener("submit", (event) => {
+  if (codeForm) codeForm.addEventListener("submit", (event) => {
     event.preventDefault();
     codeInput.value = codeInput.value.trim().toUpperCase();
     setStored(sessionStorage, CODE_KEY, codeInput.value);
