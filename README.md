@@ -1,6 +1,6 @@
 # Ashtray Apparel
 
-The new **ashtrayapparel.com**: the Ashtray sample library. Every garment on the site is one of our own samples, made in Riga. Our manufacturing service lives at [ashtraystudio.eu](https://ashtraystudio.eu).
+The new **ashtrayapparel.com**: the Ashtray sample library. Every garment on the site is one of our own samples, from our studio. Our manufacturing service lives at [ashtraystudio.eu](https://ashtraystudio.eu).
 
 The old Big Cartel shop is archived separately in **alekajs/ashtray-apparel-archive** (photos, copy, order history, shipping and discount settings).
 
